@@ -1,0 +1,1843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Al Shifa : Main Desktop</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: Tahoma, Geneva, Verdana, sans-serif;
+    background: #808080;
+    height: 100%;
+  }
+  body {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 18px;
+  }
+
+  .window {
+    width: 1024px;
+    max-width: 100%;
+    background: #eef2f6;
+    border: 1px solid #34527a;
+    box-shadow: 4px 6px 18px rgba(0,0,0,0.45);
+    user-select: none;
+    position: relative;
+  }
+
+  /* ================= SHARED TITLE BAR ================= */
+  .titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, #fdfefe 0%, #dfe8f0 100%);
+    border-bottom: 1px solid #b9c6d4;
+    padding: 3px 6px;
+    font-size: 13px;
+  }
+  .titlebar-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #1f3a63;
+    font-weight: bold;
+  }
+  .titlebar-left .icon {
+    width: 16px; height: 16px;
+    background: linear-gradient(135deg,#3b6ea5,#183a63);
+    border-radius: 3px;
+    display: inline-block;
+  }
+  .titlebar-buttons { display:flex; gap:4px; }
+  .titlebar-buttons button {
+    height: 18px;
+    border: 1px solid #99a9b8;
+    background: linear-gradient(to bottom,#fefefe,#cfd8e0);
+    font-size: 11px;
+    line-height: 1;
+    cursor: pointer;
+    color: #333;
+    padding: 0 6px;
+  }
+  .titlebar-buttons button.close:hover { background: #e04040; color: #fff; }
+  .titlebar-buttons button.back { color:#1f3a63; font-weight:bold; }
+  .titlebar-buttons button.back:hover { background:#dcebf8; }
+
+  /* ================= DESKTOP SCREEN ================= */
+  .infobar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, #eaf3fb, #cfe2f0);
+    border-bottom: 1px solid #b9c6d4;
+    padding: 5px 12px;
+    font-size: 13px;
+  }
+  .infobar .hospital { color: #1f3a63; font-weight: bold; }
+  .infobar .patient { color: #9a1c1c; font-weight: bold; }
+  .infobar .datetime { color: #1f3a63; font-weight: bold; }
+
+  .body-area { display: flex; }
+
+  .sidebar {
+    width: 210px;
+    border-right: 1px solid #b9c6d4;
+    background: #eef2f6;
+    display: flex;
+    flex-direction: column;
+  }
+  .scrollctl { display: flex; border-bottom: 1px solid #b9c6d4; }
+  .scrollctl button {
+    flex: 1;
+    background: linear-gradient(to bottom,#fefefe,#c7d3de);
+    border: 1px solid #b9c6d4;
+    font-size: 10px;
+    padding: 2px 0;
+    cursor: pointer;
+    color: #34527a;
+  }
+  .menu-list { flex: 1; }
+  .menu-item {
+    padding: 6px 10px;
+    font-size: 13px;
+    color: #16324f;
+    border-bottom: 1px solid #dbe4ec;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .menu-item:hover { background: #dcebf8; }
+  .menu-item.selected { background: #2c66a8; color: #ffffff; }
+  .sidebar-spacer { flex: 1; min-height: 220px; }
+  .fullmenu-wrap { padding: 6px; border-top: 1px solid #b9c6d4; }
+  .fullmenu-btn {
+    width: 100%;
+    padding: 5px 0;
+    text-align: center;
+    background: linear-gradient(to bottom, #4f8fd6, #1c4f8c);
+    color: #fff;
+    font-weight: bold;
+    font-size: 12px;
+    border: 1px solid #163d6c;
+    border-radius: 3px;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+  }
+  .fullmenu-btn:active { filter: brightness(0.9); }
+
+  .main {
+    flex: 1;
+    position: relative;
+    padding: 10px 16px 16px 16px;
+    background:
+      radial-gradient(ellipse at 68% 18%, rgba(120,150,180,0.10), transparent 55%),
+      #f4f7fa;
+    min-height: 560px;
+  }
+
+  .messages-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: baseline;
+    gap: 30px;
+    font-size: 12px;
+    color: #9a1c1c;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+  .messages-row .total { color: #1f3a63; }
+
+  .logo-row { display: flex; align-items: flex-start; gap: 18px; margin-top: 4px; }
+  .logo-block { display: flex; align-items: baseline; }
+  .logo-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 44px;
+    color: #7a1f2b;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .logo-title .num { font-size: 30px; color: #7a1f2b; }
+  .logo-title .plus {
+    font-family: 'Brush Script MT', cursive;
+    font-size: 22px;
+    color: #4a4a4a;
+    font-style: italic;
+    margin-left: 2px;
+  }
+  .logo-sub { font-size: 12px; color: #1f3a63; letter-spacing: 0.5px; margin-top: -2px; }
+
+  .hero-illustration { position: absolute; top: 30px; right: 40px; width: 340px; opacity: 0.55; pointer-events: none; }
+
+  .badges { position: absolute; top: 30px; right: 20px; display: flex; gap: 8px; z-index: 3; }
+  .badge {
+    width: 58px; height: 58px; border-radius: 50%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 8px; font-weight: bold; text-align: center; color: #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.4); line-height: 1.1;
+  }
+  .badge.hl7 { background: radial-gradient(circle at 35% 30%, #444, #111); border: 2px solid #900; }
+  .badge.hl7 .h7 { color: #e33; font-size: 15px; font-weight: 900; }
+  .badge.unpsa { background: radial-gradient(circle at 35% 30%, #3a7, #063); border: 2px solid #ffd700; }
+
+  .ramadan-link { text-align: center; margin-top: 8px; font-size: 15px; color: #1a4fa0; text-decoration: underline; font-weight: bold; cursor: pointer; }
+
+  .deptbox { margin-top: 26px; font-size: 13px; max-width: 460px; }
+  .deptbox .row { display: flex; padding: 4px 0; border-bottom: 1px dotted #b9c6d4; }
+  .deptbox .label { width: 110px; text-align: right; padding-right: 8px; color: #333; font-weight: bold; }
+  .deptbox .value { color: #1a4fa0; text-decoration: underline; font-weight: bold; }
+
+  .panels { display: flex; gap: 14px; margin-top: 18px; }
+  .panel { flex: 1; border: 1px solid #b9c6d4; background: #fff; min-height: 220px; display: flex; flex-direction: column; }
+  .panel-header {
+    background: linear-gradient(to bottom,#eaf3fb,#cfe2f0);
+    border-bottom: 1px solid #b9c6d4; padding: 5px 10px; font-weight: bold; color: #1f3a63; font-size: 13px;
+    display: flex; justify-content: space-between;
+  }
+  .panel-body { padding: 8px 10px; font-size: 12.5px; flex: 1; overflow-y: auto; }
+  .alert-item { display: flex; align-items: center; gap: 6px; padding: 4px 2px; cursor: pointer; color: #1f3a63; }
+  .alert-item:hover { background: #f0f6fb; }
+  .alert-item .flag { color: #2e8b2e; font-weight: bold; }
+  .alert-item .num { font-weight: bold; width: 42px; }
+  .ram-msg p { margin: 0 0 10px 0; line-height: 1.4; color: #222; }
+  .ram-msg .sign { margin-top: 4px; }
+  .ram-footer { border-top: 1px solid #dbe4ec; padding: 4px 10px; font-size: 11px; font-style: italic; color: #666; background: #f7f9fb; }
+  .status-detail { display: none; margin-top: 10px; padding: 8px 10px; background: #fff8e1; border: 1px solid #e0c46a; font-size: 12px; color: #5a4a12; max-width: 460px; }
+  .status-detail.show { display: block; }
+
+  /* ================= IPD FLOOR PLAN SCREEN ================= */
+  #screenIPD { display: none; }
+
+  .ipd-navbar {
+    display: flex;
+    align-items: stretch;
+    background: linear-gradient(to bottom, #1b2b22, #0c130f);
+    padding: 4px 8px;
+    gap: 4px;
+  }
+  .ipd-navitem {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 4px;
+    color: #d8e2df;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .ipd-navitem .ic { font-size: 16px; }
+  .ipd-navitem:hover { background: rgba(255,255,255,0.08); }
+  .ipd-navitem.active {
+    background: linear-gradient(to bottom, #35c7c2, #1a8f8b);
+    color: #062421;
+    border: 1px solid #0d6d69;
+  }
+  .ipd-title {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    font-size: 22px;
+    font-weight: bold;
+    color: #f4e9c9;
+    padding-right: 8px;
+    letter-spacing: 0.3px;
+  }
+
+  .ipd-filters {
+    background: #eef2f6;
+    border-bottom: 1px solid #b9c6d4;
+    padding: 6px 12px;
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr auto 1fr auto;
+    row-gap: 4px;
+    column-gap: 6px;
+    font-size: 12px;
+    align-items: center;
+  }
+  .ipd-filters label { color: #222; font-weight: 600; text-align: right; }
+  .ipd-filters select, .ipd-filters input[type=text] {
+    font-size: 12px;
+    padding: 2px 4px;
+    border: 1px solid #a9b7c4;
+    background: #fff;
+  }
+  .ipd-filters .chk-group { display: flex; flex-direction: column; gap: 2px; font-weight: normal; }
+  .ipd-filters .chk-group span { display:flex; align-items:center; gap:4px; }
+  .ipd-filters .icon-btn {
+    width: 22px; height: 22px;
+    border: 1px solid #a9b7c4;
+    background: linear-gradient(to bottom,#fefefe,#dbe4ec);
+    cursor: pointer;
+    font-size: 11px;
+  }
+
+  .ipd-body { display: flex; }
+
+  .ipd-table-wrap { flex: 1; border-right: 1px solid #b9c6d4; }
+  .ipd-table-header {
+    display: flex;
+    background: linear-gradient(to bottom,#2c4a72,#1c3556);
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 5px 6px;
+  }
+  .ipd-table-header .c1 { width: 100px; }
+  .ipd-table-header .c2 { width: 130px; }
+  .ipd-table-header .c3 { width: 220px; }
+  .ipd-table-header .c4 { width: 110px; }
+  .ipd-table-header .c5 { flex: 1; }
+  .ipd-table-header .c6 { width: 30px; text-align:right; }
+
+  .ipd-rows { max-height: 560px; overflow-y: auto; }
+  .ipd-row {
+    display: flex;
+    border-bottom: 1px solid #dbe4ec;
+    position: relative;
+    padding-left: 5px;
+    cursor: pointer;
+  }
+  .ipd-row:nth-child(even) { background: #f5f8fb; }
+  .ipd-row:hover { background: #eaf3fb; }
+  .ipd-row .bar { width: 5px; position:absolute; left:0; top:0; bottom:0; }
+  .ipd-row .bar.orange { background: #d9622b; }
+  .ipd-row .bar.green { background: #3a9d3a; }
+  .ipd-row .bar.navy { background: #1c3556; }
+  .ipd-col { padding: 4px 6px; font-size: 11.5px; }
+  .ipd-col.c1 { width: 100px; color:#16324f; font-weight:bold; }
+  .ipd-col.c1 .l2 { color:#16324f; font-weight:bold; margin-top:2px; }
+  .ipd-col.c2 { width: 130px; color:#222; }
+  .ipd-col.c2 .badge2 { display:inline-block; width:14px; height:14px; border-radius:50%; color:#fff; font-size:9px; text-align:center; line-height:14px; margin-left:3px; }
+  .ipd-col.c2 .badge2.r { background:#2e8b2e; }
+  .ipd-col.c2 .badge2.c { background:#111; }
+  .ipd-col.c2 .patient-name-link {
+    color: #1a4fa0;
+    text-decoration: underline;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 2px;
+  }
+  .ipd-col.c2 .patient-name-link:hover { color: #0d2f6e; }
+  .ipd-col.c3 { width: 220px; color:#444; }
+  .ipd-col.c3 .doc { color:#666; }
+  .ipd-col.c4 { width: 110px; color:#333; }
+  .ipd-col.c4 .days { color:#c0392b; font-weight:bold; }
+  .ipd-col.c5 { flex:1; color:#c0392b; font-weight:600; }
+  .ipd-col.c5 .l2 { color:#c0392b; }
+  .ipd-col.c6 { width: 90px; display:flex; flex-direction:column; gap:3px; align-items:flex-end; }
+  .ipd-btn {
+    font-size: 10px;
+    padding: 1px 6px;
+    border: 1px solid #a9b7c4;
+    background: linear-gradient(to bottom,#fefefe,#dbe4ec);
+    cursor: pointer;
+    color: #16324f;
+  }
+  .ipd-btn:hover { background: #cfe2f0; }
+
+  .ipd-side { width: 170px; padding: 6px; font-size: 11.5px; }
+  .ipd-side .panel-header2 {
+    background: linear-gradient(to bottom,#2c4a72,#1c3556);
+    color: #fff; font-weight:bold; padding: 4px 8px; font-size: 12px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .ipd-side .panel-body2 { border: 1px solid #b9c6d4; border-top:none; padding: 8px; background:#fff; margin-bottom:10px; }
+  .occ-bar { height: 14px; border-radius: 3px; background: linear-gradient(to right, #e07b2e 0%, #e07b2e 82%, #2e8b2e 82%, #2e8b2e 100%); margin-bottom:4px; }
+  .occ-pct { text-align:center; color:#c0392b; font-weight:bold; font-size: 11px; margin-bottom:6px; }
+  .stat-row { display:flex; justify-content:space-between; padding:2px 0; }
+  .stat-row .sw { display:inline-block; width:9px; height:9px; margin-right:5px; }
+  .sw.free{background:#999;} .sw.male{background:#2b6fb3;} .sw.female{background:#c23b7a;} .sw.unk{background:#999;} .sw.nb{background:#e0b12e;}
+
+  .legend-row { display:flex; align-items:center; gap:4px; font-size:10.5px; padding:1px 0; }
+  .legend-row .sw2 { width:9px; height:9px; display:inline-block; }
+  .sw2.daycare{background:#333;} .sw2.normal{background:#2b6fb3;} .sw2.private{background:#7a4fc9;}
+  .sw2.isolated{background:#e0b12e;} .sw2.hd{background:#c23b7a;} .sw2.bedridden{background:#c0392b;} .sw2.temp{background:#3a9d3a;}
+
+  /* ================= PATIENT FACESHEET SCREEN ================= */
+  #screenPatient { display: none; }
+  .pf-titlebar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(to bottom, #fdfefe 0%, #dfe8f0 100%);
+    border-bottom: 1px solid #b9c6d4; padding: 4px 8px;
+  }
+  .pf-titlebar-left { display:flex; align-items:center; gap:6px; color:#1f3a63; font-weight:bold; font-size:14px; }
+  .pf-titlebar-left .icon { width:16px; height:16px; background: linear-gradient(135deg,#3b6ea5,#183a63); border-radius:3px; display:inline-block; }
+  .pf-toolbar { display:flex; gap:4px; flex-wrap: wrap; }
+  .pf-tbtn {
+    display:flex; align-items:center; gap:4px;
+    border: 1px solid #a9b7c4;
+    background: linear-gradient(to bottom,#fefefe,#dbe4ec);
+    padding: 3px 8px; font-size: 11px; color:#16324f; font-weight:600;
+    cursor: pointer; border-radius: 2px;
+  }
+  .pf-tbtn:hover { background:#cfe2f0; }
+  .pf-tbtn .ic { font-size: 13px; }
+
+  .pf-infobar {
+    display:flex; gap:14px; padding: 8px 12px; background: #f4f7fa; border-bottom: 1px solid #b9c6d4; font-size:12px;
+  }
+  .pf-photo {
+    width: 64px; height: 74px; background: #e4e9ee; border: 1px solid #b9c6d4;
+    display:flex; align-items:center; justify-content:center; color:#9aa9b8; font-size: 22px; flex-shrink:0;
+  }
+  .pf-idname { min-width: 190px; }
+  .pf-idname .id { color:#1a4fa0; font-weight:bold; font-size: 15px; }
+  .pf-idname .name { color:#1a4fa0; font-weight:bold; font-size: 15px; }
+  .pf-idname .badges-row { display:flex; align-items:center; gap:6px; margin: 2px 0; }
+  .pf-idname .bt { background:#c0392b; color:#fff; font-size:10px; font-weight:bold; padding:1px 5px; border-radius:2px; }
+  .pf-idname .genderline { color:#1f3a63; font-weight:600; }
+  .pf-idname .complaint { color:#1a4fa0; font-style: italic; margin-top:2px; }
+
+  .pf-vitals { min-width: 90px; color:#333; }
+  .pf-vitals .row { display:flex; justify-content:space-between; gap:6px; }
+  .pf-vitals .row b { color:#111; }
+
+  .pf-visit { min-width: 150px; }
+  .pf-visit .date { font-weight:bold; color:#111; }
+  .pf-visit .allvisits { color:#1a4fa0; text-decoration:underline; cursor:pointer; font-weight:bold; }
+  .pf-visit .ipdbadge { color:#c0392b; font-weight:bold; }
+  .pf-visit .loc { font-weight:bold; color:#111; margin-top:2px; }
+
+  .pf-adm { flex:1; font-size:12px; }
+  .pf-adm .row { display:flex; gap:4px; }
+  .pf-adm .lbl { font-weight:bold; color:#222; width: 92px; }
+  .pf-adm .val { color:#1a4fa0; font-weight:600; }
+
+  .pf-icons { display:grid; grid-template-columns: repeat(6, 26px); gap: 4px; align-content:start; }
+  .pf-icons .ic2 {
+    width: 26px; height: 26px; border: 1px solid #c7d1da; background: linear-gradient(to bottom,#fff,#eef2f6);
+    display:flex; align-items:center; justify-content:center; font-size: 13px; cursor: pointer; color:#333;
+  }
+  .pf-icons .ic2:hover { background:#dcebf8; }
+
+  .pf-tabs {
+    display:flex; background: linear-gradient(to bottom,#eaf3fb,#cfe2f0); border-bottom: 1px solid #b9c6d4; padding: 3px 8px; gap: 2px; flex-wrap: wrap;
+  }
+  .pf-tabitem {
+    padding: 3px 10px; font-size: 12px; font-weight:bold; color:#1f3a63; cursor:pointer; border-radius: 2px 2px 0 0;
+  }
+  .pf-tabitem:hover { background: rgba(255,255,255,0.5); }
+  .pf-tabitem.active { background:#fff; border:1px solid #b9c6d4; border-bottom:none; }
+
+  .pf-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px; background:#eef2f6; }
+
+  .pf-tabitem-wrap { position: relative; }
+  .summary-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 230px;
+    background: #fff;
+    border: 1px solid #7a86a8;
+    box-shadow: 3px 4px 10px rgba(0,0,0,0.3);
+    z-index: 50;
+    font-size: 12px;
+    padding: 2px 0;
+  }
+  .summary-dropdown.open { display: block; }
+  .summary-dd-item {
+    padding: 5px 12px;
+    color: #16324f;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .summary-dd-item:hover { background: #dcebf8; }
+  .summary-dd-item.selected { background: #2b2b6b; color: #fff; }
+
+  .pf-view { display: none; }
+  .pf-view.active-view { display: grid; }
+  .pf-placeholder-view.active-view { display: block; }
+  .pf-placeholder-box {
+    margin: 30px; padding: 30px; background: #fff; border: 1px dashed #a9b7c4; border-radius: 6px;
+    text-align: center; color: #667; font-size: 14px;
+  }
+  .pf-placeholder-box .t { font-size: 16px; font-weight: bold; color: #1f3a63; margin-bottom: 6px; }
+  .pf-panel { border:1px solid #9fb2c4; border-radius: 6px; background:#fff; overflow:hidden; display:flex; flex-direction:column; }
+  .pf-panel-header {
+    display:flex; justify-content:space-between; align-items:center;
+    background: linear-gradient(to bottom,#eef3fb,#d7e4f0);
+    padding: 4px 8px; font-weight:bold; font-size:12.5px; color:#16324f;
+    border-bottom:1px solid #c7d1da;
+  }
+  .pf-panel-header .links { font-weight: normal; font-size: 11px; }
+  .pf-panel-header .links a { color:#1a4fa0; text-decoration:none; cursor:pointer; }
+  .pf-panel-header .links a:hover { text-decoration:underline; }
+
+  .pf-subtabs { display:flex; gap:2px; padding: 4px 6px; background:#f7f9fb; border-bottom:1px solid #e2e8ee; }
+  .pf-subtab { font-size: 11px; padding: 2px 8px; border-radius: 2px; cursor:pointer; color:#333; font-weight:600; }
+  .pf-subtab.active { background:#2c66a8; color:#fff; }
+
+  .pf-table-header {
+    display:flex; background:#eef2f6; border-bottom:1px solid #c7d1da; padding: 3px 6px; font-size:11px; font-weight:bold; color:#333;
+  }
+  .pf-table-header .nav { margin-left:auto; color:#1a4fa0; font-weight:bold; cursor:pointer; }
+  .pf-table-body { min-height: 90px; max-height: 140px; overflow-y:auto; }
+  .pf-table-row {
+    display:flex; align-items:center; padding: 3px 6px; font-size:11.5px; border-bottom: 1px dotted #e2e8ee; cursor:pointer; color:#222;
+  }
+  .pf-table-row:nth-child(even) { background:#f7f9fb; }
+  .pf-table-row:hover { background:#eaf3fb; }
+  .pf-table-row .num { width: 22px; color:#666; }
+  .pf-table-row .search { margin-left:auto; color:#5a7fa8; }
+  .pf-table-row.red { color:#c0392b; }
+
+  .pf-imaging-popup {
+    display:flex; flex-direction:column;
+  }
+  .pf-imaging-popup .hdr1 { background: linear-gradient(to bottom,#8e6fc9,#6c4aa8); color:#fff; font-weight:bold; padding:5px 8px; font-size:12.5px; }
+  .pf-imaging-popup .hdr2 { background: linear-gradient(to bottom,#a98fd6,#8e6fc9); color:#fff; font-weight:600; padding:4px 8px; font-size:12px; }
+  .pf-imaging-popup .vlist { padding: 6px 10px; font-size: 12px; }
+  .pf-imaging-popup .vrow { display:flex; justify-content:space-between; padding: 2px 0; color:#222; }
+  .pf-imaging-popup .vrow .date { color:#555; }
+
+  .pf-empty { padding: 10px; color:#aaa; font-style:italic; font-size:11.5px; }
+
+  .pf-kardex-view.active-view { display: block; }
+  .kd-toprow { display:flex; align-items:center; gap:14px; padding:6px 10px; background:#eef2f6; border-bottom:1px solid #b9c6d4; font-size:12px; }
+  .kd-toprow select { font-size:12px; padding:2px 4px; }
+  .kd-toprow .spacer{ flex:1; }
+  .kd-sbar-btn { background: linear-gradient(to bottom,#4f8fd6,#1c4f8c); color:#fff; font-weight:bold; padding:4px 10px; border:1px solid #163d6c; border-radius:3px; cursor:pointer; font-size:12px; }
+
+  .kd-subheader { display:flex; align-items:center; gap:10px; padding:5px 10px; background:#eaf3fb; border-bottom:1px solid #b9c6d4; font-size:12px; }
+  .kd-subheader .tab1{ color:#1a4fa0; font-weight:bold; text-decoration:underline; cursor:pointer; }
+  .kd-subheader .tab2{ color:#1a4fa0; font-weight:bold; cursor:pointer; }
+  .kd-subheader .icons{ display:flex; gap:6px; margin-left:auto; align-items:center; }
+  .kd-subheader .icons .ibtn{ width:22px; height:22px; border:1px solid #a9b7c4; background:linear-gradient(to bottom,#fff,#eef2f6); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px; }
+  .kd-subheader .showsum{ color:#1a4fa0; text-decoration:underline; cursor:pointer; font-weight:600; }
+
+  .kd-entries { padding:10px; display:flex; flex-direction:column; gap:10px; max-height:520px; overflow-y:auto; background:#eef2f6; }
+  .kd-entry { border:1px solid #9fb2c4; border-radius:4px; background:#fff; overflow:hidden; }
+  .kd-entry-header{ display:flex; background:linear-gradient(to bottom,#c9c2ea,#a89bd9); padding:4px 8px; font-size:11.5px; color:#1c1440; }
+  .kd-entry-header .col{ flex:1; }
+  .kd-entry-header b{ margin-right:5px; }
+  .kd-entry-header .arrows{ width:16px; display:flex; flex-direction:column; align-items:center; justify-content:space-between; color:#333; font-size:9px; cursor:pointer; }
+  .kd-entry-body{ display:flex; }
+  .kd-entry-text{ flex:1; padding:8px 10px; font-size:12px; line-height:1.5; color:#111; white-space:pre-wrap; min-height:70px; max-height:110px; overflow-y:auto; }
+
+  .kd-footer-note{ padding:6px 10px; font-size:11px; font-style:italic; color:#555; background:#f7f9fb; border-top:1px solid #e2e8ee; }
+
+  /* ================= NURSING SBAR MODAL ================= */
+  .sbar-modal {
+    display: none;
+    position: absolute;
+    top: 16px; left: 16px;
+    width: 860px; max-width: 94%;
+    background: #eef2f6;
+    border: 1px solid #5c6b8a;
+    box-shadow: 4px 6px 18px rgba(0,0,0,0.45);
+    z-index: 200;
+    font-size: 12px;
+  }
+  .sbar-modal.open { display: block; }
+
+  .sbar-titlebar {
+    display:flex; align-items:center; justify-content:space-between;
+    background: linear-gradient(to bottom, #fdfefe, #dfe8f0);
+    border-bottom: 1px solid #b9c6d4; padding: 4px 8px;
+  }
+  .sbar-titlebar-left { display:flex; align-items:center; gap:6px; color:#1f3a63; font-weight:bold; font-size:13px; }
+  .sbar-titlebar-left .icon { width:14px; height:14px; background: linear-gradient(135deg,#3b6ea5,#183a63); border-radius:3px; display:inline-block; }
+  .sbar-titlebar-right { display:flex; align-items:center; gap:2px; }
+  .sbar-tbtn { display:flex; align-items:center; gap:4px; font-size:12px; color:#16324f; font-weight:600; cursor:pointer; padding:3px 8px; border-radius:2px; }
+  .sbar-tbtn:hover { background:#dcebf8; }
+  .sbar-closeicon { font-size:15px; color:#333; cursor:pointer; padding:2px 8px; }
+  .sbar-closeicon:hover { color:#fff; background:#c0392b; }
+
+  .sbar-filters { display:flex; gap:16px; padding:8px 10px; background:#eef2f6; border-bottom:1px solid #b9c6d4; }
+  .sbar-filters-left { flex:1; display:flex; flex-direction:column; gap:6px; }
+  .sbar-radio-row { display:flex; align-items:center; gap:16px; flex-wrap: wrap; }
+  .sbar-radio-row label { display:flex; align-items:center; gap:3px; white-space:nowrap; }
+  .sbar-row-line { display:flex; align-items:center; gap:8px; flex-wrap: wrap; }
+  .sbar-row-line select, .sbar-row-line input[type=text] { font-size:12px; padding:2px 4px; }
+  .sbar-row-line .lbl { font-weight:bold; color:#222; }
+  .sbar-pname { color:#1f3a63; font-weight:bold; }
+
+  .sbar-entered-box { border:1px solid #9fb2c4; background:#fff; padding:6px 10px; display:flex; gap:14px; align-items:flex-start; min-width:270px; }
+  .sbar-entered-box .radios { display:flex; flex-direction:column; gap:4px; }
+  .sbar-entered-box .buttons { display:flex; flex-direction:column; gap:4px; }
+  .sbar-entered-box button { font-size:11px; padding:3px 10px; border:1px solid #a9b7c4; background:linear-gradient(to bottom,#fefefe,#dbe4ec); cursor:pointer; }
+  .sbar-entered-box button:hover { background:#cfe2f0; }
+  .sbar-entered-title { font-weight:bold; color:#222; margin-bottom:2px; }
+
+  .sbar-table-wrap { display:flex; border-top: 1px solid #7a86a8; }
+  .sbar-table { flex:1; overflow-x:auto; }
+  .sbar-table-header { display:flex; background:linear-gradient(to bottom,#b9b0dd,#9a8fce); font-weight:bold; font-size:11.5px; color:#1c1440; }
+  .sbar-table-header .cell { padding:4px 6px; border-right:1px solid #9083c0; }
+  .sbar-table-body { max-height: 300px; overflow-y:auto; }
+  .sbar-datarow { display:flex; border-bottom:1px solid #d5dbe3; min-height:80px; }
+  .sbar-datarow .cell { padding:4px 6px; font-size:11px; border-right:1px solid #e2e8ee; color:#222; white-space:pre-line; }
+  .sbar-scrollbar { width:16px; background:#eef2f6; display:flex; flex-direction:column; align-items:center; border-left:1px solid #b9c6d4; }
+  .sbar-scrollbar button { width:100%; font-size:9px; border:1px solid #a9b7c4; background:linear-gradient(to bottom,#fefefe,#dbe4ec); cursor:pointer; }
+
+  .sbar-bottombar { display:flex; align-items:center; gap:14px; padding:6px 10px; background:#eef2f6; border-top:1px solid #b9c6d4; }
+  .sbar-bottombar .spacer { flex:1; }
+  .sbar-bottombar button { font-size:11px; padding:4px 10px; border:1px solid #a9b7c4; background:linear-gradient(to bottom,#fefefe,#dbe4ec); cursor:pointer; }
+  .sbar-bottombar button:hover { background:#cfe2f0; }
+  .sbar-legend { padding:2px 10px 8px; font-size:11px; color:#333; }
+  .sbar-legend .sq { color:#2e8b2e; margin-right:4px; }
+
+  /* ================= PREVIOUS SBAR (HISTORY) MODAL ================= */
+  .prevsbar-modal {
+    display: none;
+    position: absolute;
+    top: 40px; left: 6px;
+    width: 780px; max-width: 92%;
+    background: #eef2f6;
+    border: 1px solid #5c6b8a;
+    box-shadow: 4px 6px 18px rgba(0,0,0,0.45);
+    z-index: 300;
+    font-size: 12px;
+  }
+  .prevsbar-modal.open { display: block; }
+  .prevsbar-titlebar {
+    display:flex; align-items:center; justify-content:space-between;
+    background: linear-gradient(to bottom, #fdfefe, #dfe8f0);
+    border-bottom: 1px solid #b9c6d4; padding: 4px 8px;
+  }
+  .prevsbar-titlebar-left { display:flex; align-items:center; gap:6px; color:#1f3a63; font-weight:bold; font-size:13px; }
+  .prevsbar-titlebar-left .icon { width:14px; height:14px; background: linear-gradient(135deg,#3b6ea5,#183a63); border-radius:3px; display:inline-block; }
+  .prevsbar-closeicon { font-size:15px; color:#333; cursor:pointer; padding:2px 8px; }
+  .prevsbar-closeicon:hover { color:#fff; background:#c0392b; }
+
+  .prevsbar-table-header { display:flex; background:#e8edf3; border-bottom:1px solid #c7d1da; font-weight:bold; font-size:11.5px; color:#333; }
+  .prevsbar-table-header .cell { padding:4px 6px; border-right:1px solid #d3dae2; }
+  .prevsbar-table-body { max-height: 300px; overflow-y:auto; }
+  .prevsbar-datarow { display:flex; border-bottom:1px solid #d5dbe3; min-height:80px; }
+  .prevsbar-datarow .cell { padding:4px 6px; font-size:11px; border-right:1px solid #e2e8ee; color:#222; white-space:pre-line; }
+  .prevsbar-datarow .cell.namecell b { color:#111; }
+
+  .prevsbar-bottombar { display:flex; justify-content:center; padding:8px; background:#eef2f6; border-top:1px solid #b9c6d4; }
+  .prevsbar-bottombar button { font-size:12px; padding:5px 24px; border:1px solid #a9b7c4; background:linear-gradient(to bottom,#fefefe,#dbe4ec); cursor:pointer; }
+  .prevsbar-bottombar button:hover { background:#cfe2f0; }
+
+  /* ================= VITAL SIGNS VIEW ================= */
+  .pf-vitalsigns-view.active-view { display: block; }
+  .vs-subtabs { display:flex; align-items:center; gap:10px; padding:6px 10px; background:#eaf3fb; border-bottom:1px solid #b9c6d4; font-size:12px; flex-wrap:wrap; }
+  .vs-subtab { font-weight:bold; padding:3px 10px; cursor:pointer; border-radius:2px; color:#1f3a63; }
+  .vs-subtab.active { background:#6c4aa8; color:#fff; }
+  .vs-filters { display:flex; align-items:center; gap:8px; margin-left:6px; flex-wrap:wrap; }
+  .vs-filters label { font-weight:bold; color:#222; }
+  .vs-filters select, .vs-filters input[type=text] { font-size:12px; padding:2px 4px; }
+  .vs-query-btn { background:linear-gradient(to bottom,#4f8fd6,#1c4f8c); color:#fff; font-weight:bold; padding:3px 10px; border:1px solid #163d6c; border-radius:3px; cursor:pointer; }
+  .vs-query-btn:hover { filter:brightness(0.95); }
+  .vs-icon-btn { width:22px; height:22px; border:1px solid #a9b7c4; background:linear-gradient(to bottom,#fff,#eef2f6); cursor:pointer; font-size:13px; display:flex; align-items:center; justify-content:center; margin-left:auto; }
+
+  .vs-table-wrap { overflow-x:auto; border-top:1px solid #b9c6d4; }
+  .vs-table { min-width:1350px; }
+  .vs-table-header { display:flex; background:#eef2f6; border-bottom:1px solid #c7d1da; font-size:11px; font-weight:bold; color:#333; }
+  .vs-table-header .cell { padding:4px 6px; border-right:1px solid #dbe4ec; width:90px; flex-shrink:0; }
+  .vs-table-header .cell.wide { width:120px; }
+  .vs-table-header .cell.narrow { width:40px; }
+  .vs-table-body { max-height:200px; overflow-y:auto; }
+  .vs-datarow { display:flex; border-bottom:1px dotted #e2e8ee; font-size:11.5px; color:#222; }
+  .vs-datarow .cell { padding:3px 6px; border-right:1px solid #eef2f6; width:90px; flex-shrink:0; }
+  .vs-datarow .cell.wide { width:120px; }
+  .vs-datarow .cell.narrow { width:40px; }
+  .vs-datarow .cell.hl { background:#dbeeff; font-weight:bold; color:#111; }
+
+  .vs-bottom { display:flex; align-items:center; gap:10px; padding:6px 10px; background:#eef2f6; border-top:1px solid #b9c6d4; font-size:12px; }
+  .vs-entered-ot { display:flex; align-items:center; gap:6px; font-weight:bold; }
+  .vs-entered-ot .sq { color:#c0392b; font-size:14px; }
+  .vs-remarks-row { display:flex; gap:14px; padding:8px 10px; background:#eef2f6; }
+  .vs-remarks-box { flex:1; display:flex; flex-direction:column; }
+  .vs-remarks-box .lbl { font-weight:bold; color:#222; margin-bottom:2px; }
+  .vs-remarks-wrap { display:flex; gap:6px; align-items:flex-start; }
+  .vs-remarks-box textarea { flex:1; height:60px; font-size:12px; padding:4px; border:1px solid #a9b7c4; resize:none; }
+  .vs-valid-range { font-size:11px; color:#333; margin-top:4px; }
+  .vs-enteredby { min-width:230px; }
+  .vs-enteredby .lbl { font-weight:bold; color:#222; margin-bottom:2px; }
+  .vs-enteredby input { width:100%; font-size:12px; padding:4px; border:1px solid #a9b7c4; background:#f5f5f5; }
+
+  .vs-datarow.editable { background: transparent; }
+  .vs-datarow.editable .cell input[type=text] {
+    width: 100%; font-size: 11.5px; padding: 0; border: none; background: transparent; color: #222; font-family: inherit;
+  }
+  .vs-datarow.editable .cell input[type=text]:focus { outline: 1px solid #8fb4d6; background: #fbfdff; }
+  .vs-entry-actions { display:flex; gap:4px; padding:4px 6px; }
+  .vs-entry-actions button {
+    font-size: 11px; padding: 2px 8px; border: 1px solid #a9b7c4;
+    background: linear-gradient(to bottom,#fefefe,#dbe4ec); cursor: pointer;
+  }
+  .vs-entry-actions button.save { background: linear-gradient(to bottom,#4f8fd6,#1c4f8c); color:#fff; border-color:#163d6c; font-weight:bold; }
+</style>
+</head>
+<body>
+
+<div class="window">
+
+  <!-- ============ DESKTOP SCREEN ============ -->
+  <div id="screenDesktop">
+    <div class="titlebar">
+      <div class="titlebar-left">
+        <span class="icon"></span>
+        <span>Al Shifa : Main Desktop</span>
+      </div>
+      <div class="titlebar-buttons">
+        <button class="close" onclick="handleClose()">✕</button>
+      </div>
+    </div>
+
+    <div class="infobar">
+      <span class="hospital">Ibri Hospital</span>
+      <span class="patient">NurseName</span>
+      <span class="datetime" id="clock"></span>
+    </div>
+
+    <div class="body-area">
+      <div class="sidebar">
+        <div class="scrollctl"><button>▲</button></div>
+        <div class="menu-list" id="menuList">
+          <div class="menu-item" data-name="IPD Floor Plan">IPD Floor Plan</div>
+          <div class="menu-item" data-name="Medicine Administration">Medicine Administration</div>
+          <div class="menu-item" data-name="Diet Record">Diet Record</div>
+          <div class="menu-item" data-name="Facesheet">Facesheet</div>
+          <div class="menu-item selected" data-name="Print Label">Print Label</div>
+          <div class="menu-item" data-name="IRLS - Incident Reporting and Learning Sy">IRLS - Incident Reporting and Learning Sy</div>
+          <div class="menu-item" data-name="Lab Request">Lab Request</div>
+          <div class="menu-item" data-name="Nursing Kardex">Nursing Kardex</div>
+          <div class="menu-item" data-name="Surgery List">Surgery List</div>
+          <div class="menu-item" data-name="Nursing SBAR">Nursing SBAR</div>
+        </div>
+        <div class="sidebar-spacer"></div>
+        <div class="scrollctl"><button>▼</button></div>
+        <div class="fullmenu-wrap">
+          <div class="fullmenu-btn" onclick="alert('Opening Full Menu…')">Full Menu</div>
+        </div>
+      </div>
+
+      <div class="main">
+        <div class="badges">
+          <div class="badge hl7"><span class="h7">Hl7</span><span>Compliant</span></div>
+          <div class="badge unpsa"><span>UNPSA</span><span>Winner</span><span>2010</span></div>
+        </div>
+
+        <div class="messages-row">
+          <span>Messages [<span id="msgTime"></span>]</span>
+          <span class="total">Total:1&nbsp;&nbsp;New:0</span>
+        </div>
+
+        <svg class="hero-illustration" viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="150" width="300" height="70" fill="#dfe6ec"/>
+          <g fill="none" stroke="#9fb2c4" stroke-width="14" stroke-linecap="round">
+            <path d="M40 30 C 120 10, 180 60, 150 110 C 120 160, 60 150, 70 100"/>
+          </g>
+          <circle cx="70" cy="100" r="26" fill="#b9c8d6" stroke="#8298ac" stroke-width="6"/>
+          <circle cx="70" cy="100" r="10" fill="#7f93a7"/>
+          <rect x="130" y="55" width="26" height="14" rx="4" fill="#9fb2c4"/>
+        </svg>
+
+        <div class="logo-row">
+          <div>
+            <div class="logo-block">
+              <span class="logo-title">Al Shifa<span class="num">3</span><span class="plus">Plus</span></span>
+            </div>
+            <div class="logo-sub">Hospital Information Management System</div>
+          </div>
+        </div>
+
+        <div class="ramadan-link" onclick="toggleRamadan()">Ramadan working Hours</div>
+
+        <div class="deptbox">
+          <div class="row"><div class="label">Department :</div><div class="value">NURSING</div></div>
+          <div class="row"><div class="label">Unit :</div><div class="value">Nursing Unit</div></div>
+          <div class="row"><div class="label">Ward :</div><div class="value">MALE SURGICAL WARD</div></div>
+        </div>
+
+        <div class="panels">
+          <div class="panel">
+            <div class="panel-header">
+              <span>Alerts</span>
+              <span id="alertTime" style="font-weight:normal;font-size:11px;"></span>
+            </div>
+            <div class="panel-body">
+              <div class="alert-item" onclick="showDetail('43 Pending Procedures without App', 'These are procedures ordered for patients that have not yet been approved. Please review and take action.')">
+                <span class="flag">⚑</span><span class="num">43</span><span>Pending Procedures without App</span>
+              </div>
+              <div class="alert-item" onclick="showDetail('4980 MDRO Case Reported', 'A Multi-Drug Resistant Organism case has been reported. Please follow infection-control protocol.')">
+                <span class="flag">⚑</span><span class="num">4980</span><span>MDRO Case Reported</span>
+              </div>
+              <div class="status-detail" id="detailBox"></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header"><span>Ramadan working Hours</span></div>
+            <div class="panel-body ram-msg">
+              <p>We congratulate you on the upcoming arrival of the blessed month of Ramadan.</p>
+              <p>We would like to inform all of you the official working hours during Ramadan will be from 8:00 Am to 1:00 Pm.</p>
+              <p class="sign">Dr. Dalal Rashid Al Ghafri<br>Hospital Director</p>
+            </div>
+            <div class="ram-footer">Created By : WeboCat On : 27-FEB-25</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ IPD FLOOR PLAN / IN-PATIENT LIST SCREEN ============ -->
+  <div id="screenIPD">
+    <div class="titlebar">
+      <div class="titlebar-left">
+        <span class="icon"></span>
+        <span>In-Patient List</span>
+      </div>
+      <div class="titlebar-buttons">
+        <button class="back" onclick="goToDesktop()">🡐 Desktop</button>
+        <button class="close" onclick="handleClose()">✕</button>
+      </div>
+    </div>
+
+    <div class="ipd-navbar">
+      <div class="ipd-navitem"><span class="ic">🚶</span>OPD</div>
+      <div class="ipd-navitem active"><span class="ic">🛏</span>IPD</div>
+      <div class="ipd-navitem"><span class="ic">🚑</span>ED</div>
+      <div class="ipd-navitem"><span class="ic">🗓</span>APP</div>
+      <div class="ipd-navitem"><span class="ic">👤</span>REF</div>
+      <div class="ipd-title">Inpatients List</div>
+    </div>
+
+    <div class="ipd-filters">
+      <label>Ward</label>
+      <select id="fWard">
+        <option>Male Medical Ward (MMW)</option>
+        <option>Male Surgical Ward (MSW)</option>
+        <option>Female Medical Ward (FMW)</option>
+        <option>ICU</option>
+      </select>
+      <label>Department</label>
+      <select id="fDept"><option value="">— All —</option><option>Genmed</option><option>Surgery</option><option>Orthopedics</option></select>
+
+      <div class="chk-group">
+        <span><input type="checkbox" checked disabled> Include Cradle ?</span>
+        <span><input type="checkbox"> Include User Depts ?</span>
+      </div>
+
+      <label>Sort By</label>
+      <div style="display:flex; gap:4px;">
+        <select style="flex:1;"><option>Ward/Room/Bed</option><option>Patient Name</option><option>Adm. Date</option></select>
+        <button class="icon-btn" title="Search">🔍</button>
+      </div>
+
+      <label>Room</label>
+      <select id="fRoom"><option value="">— All —</option></select>
+      <label>Unit</label>
+      <select id="fUnit"><option value="">— All —</option><option>Medicine Unit</option></select>
+
+      <div class="chk-group">
+        <span><input type="checkbox"> Include User Units ?</span>
+        <span><input type="checkbox"> Include Allowed Depts ?</span>
+      </div>
+
+      <label>View</label>
+      <div style="display:flex; gap:4px;">
+        <select style="flex:1;"><option>All</option><option>Admitted Today</option><option>Discharge Pending</option></select>
+        <button class="icon-btn" title="Print">🖨</button>
+      </div>
+
+      <label>Patient ID</label>
+      <input type="text" id="fPatientId" placeholder="">
+      <label style="text-align:left;"><input type="checkbox"> Show only my patients</label>
+      <label>Consultant</label>
+      <select id="fConsultant"><option value="">— All —</option><option>Harikrishnan Vanajakshy Gopi</option></select>
+
+      <div></div>
+      <div style="display:flex; gap:4px;">
+        <label style="text-align:left;">Patient File Type</label>
+        <select style="flex:1;"><option>All</option><option>Active</option></select>
+        <button class="icon-btn" title="Print">🖨</button>
+      </div>
+    </div>
+
+    <div class="ipd-body">
+      <div class="ipd-table-wrap">
+        <div class="ipd-table-header">
+          <div class="c1">Ward/Room/Bed</div>
+          <div class="c2">Patient</div>
+          <div class="c3">Dept/Unit/Doctor</div>
+          <div class="c4">Adm. Date</div>
+          <div class="c5">Alerts</div>
+          <div class="c6">&gt;</div>
+        </div>
+        <div class="ipd-rows" id="ipdRows"></div>
+      </div>
+
+      <div class="ipd-side">
+        <div class="panel-header2"><span>Quick View - Ward Wise</span></div>
+        <div class="panel-body2">
+          <div class="occ-bar"></div>
+          <div class="occ-pct">Occupancy : 82.14 %</div>
+          <div class="stat-row"><span><span class="sw free"></span>Free :</span><b>5</b></div>
+          <div class="stat-row"><span><span class="sw male"></span>Male :</span><b>23</b></div>
+          <div class="stat-row"><span><span class="sw female"></span>Female :</span><b>0</b></div>
+          <div class="stat-row"><span><span class="sw unk"></span>Unknown :</span><b>0</b></div>
+          <div class="stat-row"><span><span class="sw nb"></span>New Born :</span><b>0</b></div>
+        </div>
+
+        <div class="panel-header2"><span>Waiting List (Adm.)</span><span>🔍 ◀ ▶</span></div>
+        <div class="panel-body2" style="min-height:70px; color:#888; font-style:italic;">No records</div>
+
+        <div class="panel-header2"><span>WaitingList (Transfer)</span><span>◀ ▶</span></div>
+        <div class="panel-body2" style="min-height:60px; color:#888; font-style:italic;">No records</div>
+
+        <div class="panel-header2"><span>Beds</span></div>
+        <div class="panel-body2">
+          <div class="legend-row"><span class="sw2 daycare"></span>Daycare</div>
+          <div class="legend-row"><span class="sw2 normal"></span>Normal</div>
+          <div class="legend-row"><span class="sw2 private"></span>Private</div>
+          <div class="legend-row"><span class="sw2 isolated"></span>Isolated</div>
+          <div class="legend-row"><span class="sw2 hd"></span>HD</div>
+          <div class="legend-row"><span class="sw2 bedridden"></span>BedRidden</div>
+          <div class="legend-row"><span class="sw2 temp"></span>Temp.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PATIENT FACESHEET SCREEN ============ -->
+  <div id="screenPatient">
+    <div class="pf-titlebar">
+      <div class="pf-titlebar-left">
+        <span class="icon"></span>
+        <span>Patient Facesheet</span>
+      </div>
+      <div class="pf-toolbar">
+        <div class="pf-tbtn" onclick="alert('Preview')"><span class="ic">👁</span>Preview</div>
+        <div class="pf-tbtn" onclick="alert('NEHR Summary')"><span class="ic">📄</span>NEHR Summary</div>
+        <div class="pf-tbtn" onclick="alert('Saved')"><span class="ic">💾</span>Save</div>
+        <div class="pf-tbtn" onclick="goToIPD()"><span class="ic">💾</span>Save &amp; Close</div>
+        <div class="pf-tbtn" onclick="alert('Printing…')"><span class="ic">🖨</span>Print</div>
+        <div class="pf-tbtn" onclick="goToIPD()"><span class="ic">✕</span>Close</div>
+      </div>
+    </div>
+
+    <div class="pf-infobar">
+      <div class="pf-photo">📷</div>
+
+      <div class="pf-idname">
+        <div class="id">00000</div>
+        <div class="name">Patient Name</div>
+        <div class="badges-row"><span class="bt">A POS</span></div>
+        <div class="genderline" id="pfGenderLine">Male&nbsp;76&nbsp;Year(s)&nbsp;Omani</div>
+        <div class="complaint">Chest pain, unspecified</div>
+      </div>
+
+      <div class="pf-vitals">
+        <div class="row"><span>Wt:</span><b>60 kg</b></div>
+        <div class="row"><span>Ht:</span><b>- cm</b></div>
+        <div class="row"><span>BMI:</span><b>kg/m²</b></div>
+        <div class="row"><span>BSA:</span><b>m²</b></div>
+      </div>
+
+      <div class="pf-visit">
+        <div class="date" id="pfAdmDate">16/12/2024</div>
+        <div class="allvisits" onclick="alert('Loading all visits…')">All Visits</div>
+        <div class="ipdbadge">▲ IPD</div>
+        <div class="loc" id="pfLoc">Mmw Iso 01 / Ir 1</div>
+      </div>
+
+      <div class="pf-adm">
+        <div class="row"><span class="lbl">Adm.Dept:</span><span class="val">General Medicine</span></div>
+        <div class="row"><span class="lbl">Doctor:</span><span class="val" id="pfDoctor">Maheen Ajmal</span></div>
+        <div class="row"><span class="lbl">Dept./Unit:</span><span class="val" id="pfDeptUnit">General Medicine / Medicine Unit</span></div>
+        <div class="row"><span class="lbl">Consultant:</span><span class="val" id="pfConsultant">Harikrishnan Vanajakshy Gopi</span></div>
+      </div>
+
+      <div class="pf-icons">
+        <div class="ic2" title="G6PD">G6PD</div>
+        <div class="ic2" title="Blood">🩸</div>
+        <div class="ic2" title="Documents">📋</div>
+        <div class="ic2" title="Scan">🔍</div>
+        <div class="ic2" title="DNR">DNR</div>
+        <div class="ic2" title="Alert">⚠</div>
+        <div class="ic2" title="Note">📝</div>
+        <div class="ic2" title="Isolation">☣</div>
+        <div class="ic2" title="Consent">📎</div>
+        <div class="ic2" title="Radiation">☢</div>
+      </div>
+    </div>
+
+    <div class="pf-tabs">
+      <div class="pf-tabitem-wrap">
+        <div class="pf-tabitem active" onclick="toggleDropdown('summaryDropdown', event)">Summary ▾</div>
+        <div class="summary-dropdown" id="summaryDropdown">
+          <div class="summary-dd-item selected" data-view="Patient Summary" onclick="selectSummaryView('Patient Summary')">Patient Summary</div>
+          <div class="summary-dd-item" data-view="Connected Inst. Summary" onclick="selectSummaryView('Connected Inst. Summary')">Connected Inst. Summary</div>
+          <div class="summary-dd-item" data-view="Contact Person Details" onclick="selectSummaryView('Contact Person Details')">Contact Person Details</div>
+          <div class="summary-dd-item" data-view="Imaging History" onclick="selectSummaryView('Imaging History')">Imaging History</div>
+          <div class="summary-dd-item" data-view="Remote Imaging History" onclick="selectSummaryView('Remote Imaging History')">Remote Imaging History</div>
+        </div>
+      </div>
+      <div class="pf-tabitem-wrap">
+        <div class="pf-tabitem" onclick="toggleDropdown('notesDropdown', event)">Notes ▾</div>
+        <div class="summary-dropdown" id="notesDropdown">
+          <div class="summary-dd-item" onclick="selectNotesItem('ED Disposal')">ED Disposal</div>
+          <div class="summary-dd-item" onclick="selectNotesItem('Notes')">Notes&nbsp;&nbsp;▸</div>
+          <div class="summary-dd-item" onclick="selectNotesItem('Other Exam')">Other Exam&nbsp;&nbsp;▸</div>
+          <div class="summary-dd-item" onclick="selectNotesItem('Screening')">Screening&nbsp;&nbsp;▸</div>
+          <div class="summary-dd-item" onclick="selectNotesItem('Addendum')">Addendum</div>
+          <div class="summary-dd-item" onclick="selectNotesItem('Triage Information')">Triage Information</div>
+          <div class="summary-dd-item" onclick="selectNotesItem('Pregnancy Info')">Pregnancy Info</div>
+          <div class="summary-dd-item" onclick="selectNotesItem('Pregnancy Info Nurse')">Pregnancy Info Nurse</div>
+          <div class="summary-dd-item" style="font-weight:bold; cursor:default; background:#f2f2f2;">Nursing Procedures</div>
+          <div class="summary-dd-item" onclick="selectNotesItem('Kardex')">Kardex</div>
+          <div class="summary-dd-item" onclick="selectNotesItem('Discharge Summary')">Discharge Summary</div>
+          <div class="summary-dd-item" onclick="selectNotesItem('CPR Register')">CPR Register</div>
+          <div class="summary-dd-item" onclick="selectNotesItem('Progress Notes')">Progress Notes</div>
+          <div class="summary-dd-item" onclick="selectNotesItem('Child Health Register')">Child Health Register</div>
+          <div class="summary-dd-item" onclick="selectNotesItem('E.P.I Register')">E.P.I Register</div>
+        </div>
+      </div>
+      <div class="pf-tabitem" onclick="alert('Consults — not implemented in this demo')">Consults</div>
+      <div class="pf-tabitem" onclick="alert('Laboratory — not implemented in this demo')">Laboratory</div>
+      <div class="pf-tabitem" onclick="alert('Procedure — not implemented in this demo')">Procedure ▾</div>
+      <div class="pf-tabitem" onclick="alert('Medicine — not implemented in this demo')">Medicine</div>
+      <div class="pf-tabitem" onclick="alert('Schedule — not implemented in this demo')">Schedule ▾</div>
+      <div class="pf-tabitem-wrap">
+        <div class="pf-tabitem" onclick="toggleDropdown('readingsDropdown', event)">Readings ▾</div>
+        <div class="summary-dropdown" id="readingsDropdown">
+          <div class="summary-dd-item" onclick="selectReadingsItem('CCOT Record')">CCOT Record</div>
+          <div class="summary-dd-item" onclick="selectReadingsItem('Circulatory Senso Motor')">Circulatory Senso Motor</div>
+          <div class="summary-dd-item" onclick="selectReadingsItem('Coma Observation Chart')">Coma Observation Chart</div>
+          <div class="summary-dd-item" onclick="selectReadingsItem('Continuous Irrigation')">Continuous Irrigation</div>
+          <div class="summary-dd-item" onclick="selectReadingsItem('Diabetic Chart')">Diabetic Chart</div>
+          <div class="summary-dd-item" onclick="selectReadingsItem('Mech. Ventilator Chart')">Mech. Ventilator Chart</div>
+          <div class="summary-dd-item" onclick="selectReadingsItem('Vaccination')">Vaccination</div>
+          <div class="summary-dd-item" onclick="selectReadingsItem('Adult SEWS')">Adult SEWS</div>
+          <div class="summary-dd-item" onclick="selectReadingsItem('Process Sheet')">Process Sheet</div>
+          <div class="summary-dd-item" onclick="selectReadingsItem('Cardiac Output')">Cardiac Output</div>
+          <div class="summary-dd-item" onclick="selectReadingsItem('Convulsion Chart')">Convulsion Chart</div>
+          <div class="summary-dd-item" onclick="selectReadingsItem('Tubes IV Lines')">Tubes IV Lines</div>
+          <div class="summary-dd-item" onclick="selectReadingsItem('Turning Chart')">Turning Chart</div>
+          <div class="summary-dd-item" style="font-weight:bold;" onclick="selectReadingsItem('Vital Signs/Anthopometry')">Vital Signs/Anthopometry</div>
+          <div class="summary-dd-item" onclick="selectReadingsItem('Stool Chart')">Stool Chart</div>
+          <div class="summary-dd-item" onclick="selectReadingsItem('Assessment')">Assessment&nbsp;&nbsp;▸</div>
+          <div class="summary-dd-item" onclick="selectReadingsItem('Critical Observation Chart')">Critical Observation Chart</div>
+          <div class="summary-dd-item" onclick="selectReadingsItem('Ventilatory Chart')">Ventilatory Chart</div>
+          <div class="summary-dd-item" onclick="selectReadingsItem('Intake-Output')">Intake-Output</div>
+          <div class="summary-dd-item" onclick="selectReadingsItem('Growth Chart')">Growth Chart</div>
+          <div class="summary-dd-item" onclick="selectReadingsItem('Nursing Information Sheet')">Nursing Information Sheet</div>
+        </div>
+      </div>
+      <div class="pf-tabitem" onclick="alert('Surgery — not implemented in this demo')">Surgery ▾</div>
+      <div class="pf-tabitem" onclick="alert('Reports — not implemented in this demo')">Reports ▾</div>
+      <div class="pf-tabitem" onclick="alert('Utilities — not implemented in this demo')">Utilities ▾</div>
+    </div>
+
+    <div class="pf-view pf-grid active-view" id="view-patientSummary">
+
+      <!-- Diagnosis -->
+      <div class="pf-panel">
+        <div class="pf-panel-header"><span>Diagnosis</span><span class="links"><a>New</a> | <a>Detail</a></span></div>
+        <div class="pf-subtabs">
+          <div class="pf-subtab active">Textual(4)</div>
+          <div class="pf-subtab">Coded(6)</div>
+        </div>
+        <div class="pf-table-header"><span>#</span>&nbsp;&nbsp;<span>Onset Date</span>&nbsp;&nbsp;<span>Textual Diagnosis</span><span class="nav">◀ ▶</span></div>
+        <div class="pf-table-body">
+          <div class="pf-table-row"><span class="num">1</span><span style="width:60px;">16/12/24</span><span>Post cardiac arrest</span><span class="search">🔍</span></div>
+          <div class="pf-table-row"><span class="num">2</span><span style="width:60px;">16/12/24</span><span>Cardiac arrest with successful resuscitation</span><span class="search">🔍</span></div>
+          <div class="pf-table-row"><span class="num">3</span><span style="width:60px;">12/11/24</span><span>Benign paroxysmal vertigo</span><span class="search">🔍</span></div>
+        </div>
+      </div>
+
+      <!-- Recent Vital Signs -->
+      <div class="pf-panel">
+        <div class="pf-panel-header"><span>Recent Vital Signs</span></div>
+        <div class="pf-table-body" style="padding: 4px 10px;">
+          <div class="pf-table-row" style="border-bottom:none;"><span>Temp:</span><span style="margin-left:8px;">36.5 °C</span><span class="search" style="color:#555; font-weight:normal;">10/03/25</span></div>
+          <div class="pf-table-row" style="border-bottom:none;"><span>GCS:</span><span style="margin-left:8px;">15</span><span class="search" style="color:#555; font-weight:normal;">13/11/16</span></div>
+          <div class="pf-table-row" style="border-bottom:none;"><span>Pulse:</span><span style="margin-left:8px;">90 /min</span><span class="search" style="color:#555; font-weight:normal;">27/02/25</span></div>
+          <div class="pf-table-row" style="border-bottom:none;"><span>Resp:</span><span style="margin-left:8px;">18 /min</span><span class="search" style="color:#555; font-weight:normal;">10/03/25</span></div>
+          <div class="pf-table-row" style="border-bottom:none;"><span>BP Sys:</span><span style="margin-left:8px;">165mmHg</span><span class="search" style="color:#555; font-weight:normal;">10/03/25</span></div>
+          <div class="pf-table-row" style="border-bottom:none;"><span>BP Dia:</span><span style="margin-left:8px;">87mmHg</span><span class="search" style="color:#555; font-weight:normal;">10/03/25</span></div>
+        </div>
+      </div>
+
+      <!-- Allergy History Surgery Vaccination -->
+      <div class="pf-panel">
+        <div class="pf-panel-header"><span>Allergy, History, Surgery and Vaccination</span><span class="links"><a>New</a></span></div>
+        <div class="pf-subtabs">
+          <div class="pf-subtab">Allergy</div>
+          <div class="pf-subtab active">History(1)</div>
+          <div class="pf-subtab">Surgery(1)</div>
+          <div class="pf-subtab">Vaccination</div>
+        </div>
+        <div class="pf-table-header"><span>#</span>&nbsp;&nbsp;<span>Onset Date</span>&nbsp;&nbsp;<span>History Details</span><span class="nav">◀ ▶</span></div>
+        <div class="pf-table-body">
+          <div class="pf-table-row"><span class="num">1</span><span style="width:60px;">10/07/04</span><span>Past Medical History of Hypertension (Past M…</span><span class="search">🔍</span></div>
+        </div>
+      </div>
+
+      <!-- Medication -->
+      <div class="pf-panel">
+        <div class="pf-panel-header"><span>Medication</span><span class="links"><a>Continue</a> | <a>New</a> | <a>Hold</a> | <a>Stop</a> | <a>History</a></span></div>
+        <div class="pf-subtabs">
+          <div class="pf-subtab active">Active(7)</div>
+          <div class="pf-subtab">Hold</div>
+          <div class="pf-subtab">Infusion</div>
+        </div>
+        <div class="pf-table-header"><span>#</span>&nbsp;&nbsp;<span>Start Time</span>&nbsp;&nbsp;<span>Medicine</span><span class="nav">◀ ▶</span></div>
+        <div class="pf-table-body">
+          <div class="pf-table-row"><span class="num">1</span><span style="width:100px;">08/03/25 07:19</span><span>Human Albumin Inj 50 Ml/50Ml IV</span><span class="search">🔍</span></div>
+          <div class="pf-table-row"><span class="num">2</span><span style="width:100px;">02/03/25 13:36</span><span>Fusidic Acid Crm 2 %/Grams Local A…</span><span class="search">🔍</span></div>
+          <div class="pf-table-row"><span class="num">3</span><span style="width:100px;">14/02/25 18:12</span><span>clonazePAM Tab 2 Mg Oral</span><span class="search">🔍</span></div>
+          <div class="pf-table-row"><span class="num">4</span><span style="width:100px;">28/02/25 22:02</span><span>Atorvastatin Tab 40 Mg Oral</span><span class="search">🔍</span></div>
+          <div class="pf-table-row"><span class="num">5</span><span style="width:100px;">09/03/25 12:47</span><span>Frusemide Inj 10 Mg/Ml IV</span><span class="search">🔍</span></div>
+        </div>
+      </div>
+
+      <!-- Recent Visits -->
+      <div class="pf-panel">
+        <div class="pf-panel-header"><span>Recent Visits</span><span class="links"><a>Summary</a></span></div>
+        <div class="pf-subtabs">
+          <div class="pf-subtab active">Clinical</div>
+          <div class="pf-subtab">Non-Clinical</div>
+        </div>
+        <div class="pf-table-header"><span>Date</span>&nbsp;&nbsp;<span>Type</span>&nbsp;&nbsp;<span>Department</span><span class="nav">◀ ▶</span></div>
+        <div class="pf-table-body">
+          <div class="pf-table-row"><span style="width:60px;">16/12/24</span><span style="width:34px;">IPD</span><span>GENERAL MEDICI…</span><span class="search">🔍</span></div>
+          <div class="pf-table-row red"><span style="width:60px;">16/12/24</span><span style="width:34px;">ED</span><span>EMERGENCY DEP…</span><span class="search">🔍</span></div>
+          <div class="pf-table-row red"><span style="width:60px;">12/11/24</span><span style="width:34px;">ED</span><span>EMERGENCY DEP…</span><span class="search">🔍</span></div>
+          <div class="pf-table-row"><span style="width:60px;">27/10/24</span><span style="width:34px;">OPD</span><span>GENERAL MEDICI…</span><span class="search">🔍</span></div>
+          <div class="pf-table-row"><span style="width:60px;">27/10/24</span><span style="width:34px;">OPD</span><span>OPHTHALMOLO…</span><span class="search">🔍</span></div>
+        </div>
+      </div>
+
+      <!-- Laboratory Tests -->
+      <div class="pf-panel">
+        <div class="pf-panel-header"><span>Laboratory Tests</span><span class="links"><a>New</a> | <a>Result</a> | <a>History</a></span></div>
+        <div class="pf-subtabs">
+          <div class="pf-subtab active">Pending(8)</div>
+          <div class="pf-subtab">Released(31)</div>
+        </div>
+        <div class="pf-table-header"><span>#</span>&nbsp;&nbsp;<span>Test Name</span><span class="nav">◀ ▶</span></div>
+        <div class="pf-table-body">
+          <div class="pf-table-row"><span class="num">1</span><span>CBC, Panel</span><span class="search">🔍</span></div>
+          <div class="pf-table-row"><span class="num">2</span><span>Procalcitonin</span><span class="search">🔍</span></div>
+          <div class="pf-table-row"><span class="num">3</span><span>Urea and Electrolytes and GFR, Panel</span><span class="search">🔍</span></div>
+          <div class="pf-table-row"><span class="num">4</span><span>C Reactive Protein in Serum/Plasma</span><span class="search">🔍</span></div>
+          <div class="pf-table-row"><span class="num">5</span><span>Bone Profile</span><span class="search">🔍</span></div>
+        </div>
+      </div>
+
+      <!-- Clinical Notes and Orders -->
+      <div class="pf-panel">
+        <div class="pf-panel-header"><span>Clinical Notes and Orders</span></div>
+        <div class="pf-subtabs">
+          <div class="pf-subtab active">Notes(9)</div>
+          <div class="pf-subtab">Orders</div>
+          <div class="pf-subtab">Nursing Proc.(16)</div>
+        </div>
+        <div class="pf-table-header"><span>#</span>&nbsp;&nbsp;<span>Start Time</span>&nbsp;&nbsp;<span>Medicine</span>&nbsp;&nbsp;<span>Days</span><span class="nav">◀ ▶</span></div>
+        <div class="pf-table-body"><div class="pf-empty">No records to display</div></div>
+      </div>
+
+      <!-- Clinical Reminders -->
+      <div class="pf-panel">
+        <div class="pf-panel-header"><span>Clinical Reminders</span><span class="links"><label><input type="checkbox"> My Dept</label></span></div>
+        <div class="pf-table-header"><span>Type</span>&nbsp;&nbsp;<span>Remarks</span><span class="nav">◀ ▶</span></div>
+        <div class="pf-table-body"><div class="pf-empty">No records to display</div></div>
+      </div>
+
+      <!-- Imaging Procedures -->
+      <div class="pf-panel">
+        <div class="pf-panel-header"><span>Imaging Procedures</span><span class="links"><a>GoTo</a> | <a>New</a> | <a>Result</a> | <a>History</a></span></div>
+        <div class="pf-subtabs">
+          <div class="pf-subtab">Pending</div>
+          <div class="pf-subtab active">Released(1)</div>
+        </div>
+        <div class="pf-table-header"><span>#</span>&nbsp;&nbsp;<span>Procedure Name</span>&nbsp;&nbsp;<span>Report Date</span><span class="nav">◀ ▶</span></div>
+        <div class="pf-table-body">
+          <div class="pf-table-row"><span class="num">1</span><span>Chest (High Resolution) CT</span><span class="search">🔍</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="pf-view pf-placeholder-view" id="view-placeholder">
+      <div class="pf-placeholder-box">
+        <div class="t" id="placeholderTitle">—</div>
+        This section hasn't been built yet — tell me what it should show and I'll add it.
+      </div>
+    </div>
+
+    <div class="pf-view pf-kardex-view" id="view-kardex">
+      <div class="kd-toprow">
+        <span>Show Kardex for</span>
+        <select><option>Last 24 Hrs</option><option>Last 48 Hrs</option><option>All</option></select>
+        <label><input type="checkbox"> Include Cancelled Notes</label>
+        <span class="spacer"></span>
+        <div class="kd-sbar-btn" onclick="openNursingSBAR()">Nursing SBAR</div>
+      </div>
+      <div class="kd-subheader">
+        <span class="tab1">Pre/Post Operative Instructions</span>
+        <span>|</span>
+        <span class="tab2">Post-Op(1)</span>
+        <div class="icons">
+          <div class="ibtn" title="Info">ℹ</div>
+          <div class="ibtn" title="Add">+</div>
+          <div class="ibtn" title="Remove">✕</div>
+          <div class="ibtn" title="Refresh">↻</div>
+          <span class="showsum">Show Summary</span>
+        </div>
+      </div>
+      <div class="kd-entries" id="kdEntries"></div>
+      <div class="kd-footer-note">Note :- To insert a pre-defined textual remark, type the short name and press F1. eg. type 'HO' and press F1 to insert the text 'Handed over patient to next duty staff'</div>
+    </div>
+
+    <div class="pf-view pf-vitalsigns-view" id="view-vitalsigns">
+      <div class="vs-subtabs">
+        <div class="vs-subtab active">Vital Signs</div>
+        <div class="vs-subtab" onclick="alert('Anthopometry — not implemented in this demo')">Anthopometry</div>
+        <div class="vs-subtab" onclick="alert('Chart — not implemented in this demo')">Chart</div>
+
+        <div class="vs-filters">
+          <label>Screen Template</label>
+          <select><option>IN-PATIENT</option><option>ICU</option><option>OT</option></select>
+          <label>Duration</label>
+          <select><option>Last 24 Hrs</option><option>Last 48 Hrs</option><option>Last 7 Days</option></select>
+          <label>From Date</label>
+          <input type="text" style="width:90px;">
+          <label>To Date</label>
+          <input type="text" style="width:90px;">
+          <div class="vs-query-btn" onclick="alert('Querying vital signs…')">Query</div>
+          <label><input type="radio" name="vsColMode" checked> All</label>
+          <label><input type="radio" name="vsColMode"> Show Only Template Cols</label>
+        </div>
+        <div class="vs-icon-btn" title="Add new entry" onclick="addVitalSignsEntry()">+</div>
+        <div class="vs-icon-btn" title="Remove">✕</div>
+      </div>
+
+      <div class="vs-table-wrap">
+        <div class="vs-table">
+          <div class="vs-table-header">
+            <div class="cell wide">Vital Date</div>
+            <div class="cell narrow">P.</div>
+            <div class="cell wide">Level of Consciousness</div>
+            <div class="cell narrow">Gcs</div>
+            <div class="cell">Temp (C)</div>
+            <div class="cell">Heart Rate</div>
+            <div class="cell">NBP Sys</div>
+            <div class="cell">NBP Dias</div>
+            <div class="cell">Resp</div>
+            <div class="cell">Spo2</div>
+            <div class="cell narrow">O2</div>
+            <div class="cell wide">MEWS Score</div>
+            <div class="cell">Pain Score</div>
+            <div class="cell">UOP ml/hr.</div>
+            <div class="cell wide">Bowel Open?</div>
+            <div class="cell" title="CENTRAL VENUS PRESSURE">CVP</div>
+            <div class="cell">Fhr</div>
+            <div class="cell">ICP</div>
+            <div class="cell">IABP Aug</div>
+            <div class="cell">IABP Freq</div>
+            <div class="cell wide">Pulse (B/min)</div>
+            <div class="cell">Mean</div>
+          </div>
+          <div class="vs-table-body" id="vsRows"></div>
+        </div>
+      </div>
+
+      <div class="vs-bottom">
+        <div class="vs-entered-ot"><span class="sq">■</span> Entered In OT</div>
+      </div>
+
+      <div class="vs-remarks-row">
+        <div class="vs-remarks-box">
+          <div class="lbl">Remarks</div>
+          <div class="vs-remarks-wrap">
+            <textarea placeholder=""></textarea>
+            <div class="vs-icon-btn" title="Search" style="margin-left:0;">🔍</div>
+          </div>
+          <div class="vs-valid-range">Valid Range :- Low  0   High 42</div>
+        </div>
+        <div class="vs-enteredby">
+          <div class="lbl">Entered By</div>
+          <input type="text" value="IRENE FLORES" readonly>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============ NURSING SBAR MODAL ============ -->
+  <div class="sbar-modal" id="sbarModal">
+    <div class="sbar-titlebar">
+      <div class="sbar-titlebar-left">
+        <span class="icon"></span>
+        <span>Nursing SBAR (Situation Background Assessement Recommendation)</span>
+      </div>
+      <div class="sbar-titlebar-right">
+        <div class="sbar-tbtn" onclick="closeNursingSBAR()">Close</div>
+        <div class="sbar-tbtn" onclick="alert('Printing SBAR list…')">🖨 Print</div>
+        <div class="sbar-tbtn" onclick="closeNursingSBAR()">Close</div>
+        <span class="sbar-closeicon" onclick="closeNursingSBAR()">✕</span>
+      </div>
+    </div>
+
+    <div class="sbar-filters">
+      <div class="sbar-filters-left">
+        <div class="sbar-radio-row">
+          <label><input type="radio" name="sbarType" checked> Inpatient</label>
+          <label><input type="radio" name="sbarType"> ED visit</label>
+          <label><input type="radio" name="sbarType"> A&amp;E Department</label>
+          <select style="flex:1; min-width:120px;"><option></option></select>
+          <label style="margin-left:20px;"><input type="radio" name="sbarType2" checked> Hemodialysis</label>
+        </div>
+        <div class="sbar-row-line">
+          <span class="lbl">Ward Name</span>
+          <select><option>MALE MEDICAL WARD</option><option>MALE SURGICAL WARD</option><option>ICU</option></select>
+          <span class="lbl">Room</span>
+          <select><option></option></select>
+          <label><input type="checkbox" checked> Include patients with no SBAR</label>
+        </div>
+        <div class="sbar-row-line">
+          <span class="lbl">Patient</span>
+          <input type="text" value="00000" style="width:70px;">
+          <span class="sbar-pname">Patient Name, Male, 76 Year(s)(Dob:01/01/1949), Omani</span>
+        </div>
+      </div>
+
+      <div class="sbar-entered-box">
+        <div class="radios">
+          <div class="sbar-entered-title">Show SBAR entered in</div>
+          <label><input type="radio" name="sbarWhen"> Last 8 Hours</label>
+          <label><input type="radio" name="sbarWhen" checked> Last 24 hours</label>
+          <label><input type="radio" name="sbarWhen"> From Visits</label>
+        </div>
+        <div class="buttons">
+          <button onclick="alert('Cleared filters')">Clear</button>
+          <button onclick="alert('Querying SBAR entries…')">Query</button>
+          <button onclick="alert('Printing…')" style="margin-top:6px;">🖨</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sbar-table-wrap">
+      <div class="sbar-table">
+        <div class="sbar-table-header">
+          <div class="cell" style="width:75px;">SBAR Date</div>
+          <div class="cell" style="width:120px;">Patient Details</div>
+          <div class="cell" style="width:135px;">Ward/Bed Details</div>
+          <div class="cell" style="width:130px;">Situation</div>
+          <div class="cell" style="width:130px;">Background</div>
+          <div class="cell" style="width:100px;">Assessment</div>
+          <div class="cell" style="width:100px;">Recommendation</div>
+          <div class="cell" style="flex:1;">Remarks</div>
+        </div>
+        <div class="sbar-table-body" id="sbarRows"></div>
+      </div>
+      <div class="sbar-scrollbar">
+        <button>▲</button>
+        <div style="flex:1;"></div>
+        <button>▼</button>
+      </div>
+    </div>
+
+    <div class="sbar-bottombar">
+      <span><b>Created By:</b>&nbsp;&nbsp;MOHAMED UKKASHA ZAKKIR HUSSAI</span>
+      <span class="spacer"></span>
+      <span><b>Total:</b> 1</span>
+      <span class="spacer"></span>
+      <button onclick="alert('Add New SBAR entry')">Add New</button>
+      <button onclick="alert('Edit SBAR entry')">Edit</button>
+      <button onclick="openPreviousSBAR()">Show History</button>
+      <button onclick="closeNursingSBAR()">Close</button>
+    </div>
+    <div class="sbar-legend"><span class="sq">■</span> - Last 8 or 24 hours SBAR Entries</div>
+  </div>
+
+  <!-- ============ PREVIOUS SBAR (HISTORY) MODAL ============ -->
+  <div class="prevsbar-modal" id="prevSbarModal">
+    <div class="prevsbar-titlebar">
+      <div class="prevsbar-titlebar-left">
+        <span class="icon"></span>
+        <span>Previous SBAR</span>
+      </div>
+      <span class="prevsbar-closeicon" onclick="closePreviousSBAR()">✕</span>
+    </div>
+
+    <div class="prevsbar-table-header">
+      <div class="cell" style="width:110px;">SBAR Date</div>
+      <div class="cell" style="width:130px;">Situation</div>
+      <div class="cell" style="width:130px;">Background</div>
+      <div class="cell" style="width:130px;">Assessment</div>
+      <div class="cell" style="width:150px;">Recommendation</div>
+      <div class="cell" style="flex:1;">Remarks</div>
+    </div>
+    <div class="prevsbar-table-body" id="prevSbarRows"></div>
+
+    <div class="prevsbar-bottombar">
+      <button onclick="closePreviousSBAR()">Close</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  /* ---------- Clock (desktop) ---------- */
+  function pad(n){ return n.toString().padStart(2,'0'); }
+  function formatDT(d){
+    return pad(d.getDate())+"/"+pad(d.getMonth()+1)+"/"+d.getFullYear()+" "+
+           pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
+  }
+  function tick(){
+    const now = new Date();
+    const c = document.getElementById('clock');
+    if(c) c.textContent = formatDT(now);
+  }
+  tick();
+  setInterval(tick, 1000);
+  document.getElementById('msgTime').textContent = "10/03/2025 12:26:34";
+  document.getElementById('alertTime').textContent = "[10/03/2025 12:26:34]";
+
+  function toggleRamadan(){
+    document.querySelector('.panels').scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+  function showDetail(title, text){
+    const box = document.getElementById('detailBox');
+    box.innerHTML = "<strong>"+title+"</strong><br>"+text;
+    box.classList.add('show');
+  }
+  function handleClose(){
+    if(confirm("Close Al Shifa?")){
+      document.body.innerHTML = "<div style='color:#fff;font-family:sans-serif;padding:40px;text-align:center;'>Session closed.</div>";
+    }
+  }
+
+  /* ---------- Screen switching ---------- */
+  function goToDesktop(){
+    document.getElementById('screenIPD').style.display = 'none';
+    document.getElementById('screenPatient').style.display = 'none';
+    document.getElementById('screenDesktop').style.display = 'block';
+  }
+  function goToIPD(){
+    document.getElementById('screenDesktop').style.display = 'none';
+    document.getElementById('screenPatient').style.display = 'none';
+    document.getElementById('screenIPD').style.display = 'block';
+    renderRows();
+  }
+
+  document.querySelectorAll('.menu-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('selected'));
+      item.classList.add('selected');
+      if(item.dataset.name === 'IPD Floor Plan'){
+        goToIPD();
+      }
+    });
+  });
+
+  document.querySelectorAll('.ipd-navitem').forEach(item=>{
+    item.addEventListener('click', ()=>{
+      document.querySelectorAll('.ipd-navitem').forEach(i=>i.classList.remove('active'));
+      item.classList.add('active');
+      if(item.textContent.trim().indexOf('IPD') === -1){
+        alert('This demo only implements the IPD (Inpatients) list.');
+        item.classList.remove('active');
+        document.querySelector('.ipd-navitem').nextElementSibling.classList.add('active'); // fallback to IPD
+      }
+    });
+  });
+
+  /* ---------- In-Patient data & table ---------- */
+  const patients = [
+    {ward:"MMW", room:"IR 1", room2:"MMW ISO 01", gender:"Male", age:76, badge:"R", dept:"Genmed \\ Medicine Unit", doc:"Harikrishnan Vanajakshy Gopi", adm:"16/12/24 22:28", days:"43", days2:"84", alerts1:"SUP  Allergy  Lab(p)  Lab(a)  OT", alerts2:"System  Hema  App.  Rad  Abn.", bar:"orange"},
+    {ward:"MMW", room:"IR 2", room2:"MMW ISO 02", gender:"", age:"", badge:"", dept:"", doc:"", adm:"", days:"", days2:"", alerts1:"", alerts2:"", bar:"green"},
+    {ward:"MMW OR", room:"Obs01", room2:"", gender:"Male", age:75, badge:"R", dept:"Genmed \\ Medicine Unit", doc:"Harikrishnan Vanajakshy Gopi", adm:"08/03/25 02:18", days:"3", days2:"3", alerts1:"Allergy  Lab(a)  OT", alerts2:"System  App.  Rad  Abn.", bar:"green"},
+    {ward:"MMW OR", room:"Obs02", room2:"", gender:"", age:"", badge:"", dept:"", doc:"", adm:"", days:"", days2:"", alerts1:"", alerts2:"", bar:"green"},
+    {ward:"MMW OR", room:"Obs03", room2:"", gender:"Male", age:36, badge:"", dept:"Genmed \\ Medicine Unit", doc:"Harikrishnan Vanajakshy Gopi", adm:"24/02/25 09:35", days:"5", days2:"15", alerts1:"Allergy  Lab(p)  Lab(a)", alerts2:"Hema  App.  Rad  Abn.", bar:"green"},
+    {ward:"MMW OR", room:"Obs04", room2:"", gender:"Male", age:33, badge:"", dept:"Genmed \\ Medicine Unit", doc:"Harikrishnan Vanajakshy Gopi", adm:"23/02/25 16:22", days:"15", days2:"15", alerts1:"Lab(p)  Lab(a)", alerts2:"Hema  App.  Rad  Abn.", bar:"green"},
+    {ward:"MMW OR", room:"Obs05", room2:"", gender:"Male", age:32, badge:"", dept:"Genmed \\ Medicine Unit", doc:"Harikrishnan Vanajakshy Gopi", adm:"08/03/25 11:13", days:"3", days2:"3", alerts1:"Allergy  Lab(a)", alerts2:"App.  Rad  Abn.", bar:"green"},
+    {ward:"MMW", room:"RM 1 Bed01", room2:"", gender:"Male", age:75, badge:"R", dept:"Genmed \\ Medicine Unit", doc:"Harikrishnan Vanajakshy Gopi", adm:"05/03/25 13:37", days:"1", days2:"5", alerts1:"Lab(a)  OT  Pro", alerts2:"App.  Med  Rad", bar:"navy"},
+    {ward:"MMW", room:"RM 1 Bed02", room2:"", gender:"Male", age:49, badge:"R", badge2:"C", dept:"Genmed \\ Medicine Unit", doc:"Harikrishnan Vanajakshy Gopi", adm:"07/03/25 05:47", days:"4", days2:"4", alerts1:"Lab(p)  Lab(a)  OT", alerts2:"System  Hema  App.  Rad  Abn.  Pro", bar:"navy"},
+    {ward:"MMW", room:"RM 1 Bed03", room2:"", gender:"Male", age:67, badge:"R", dept:"Genmed \\ Medicine Unit", doc:"Harikrishnan Vanajakshy Gopi", adm:"26/02/25 13:10", days:"10", days2:"12", alerts1:"Lab(p)  Lab(a)  OT  Pro", alerts2:"Hema  App.  Med  Rad  Abn.", bar:"navy"},
+    {ward:"MMW", room:"RM 1 Bed04", room2:"", gender:"Male", age:80, badge:"", dept:"Genmed \\ Medicine Unit", doc:"Harikrishnan Vanajakshy Gopi", adm:"07/03/25 23:37", days:"3", days2:"3", alerts1:"Lab(p)  Lab(a)  OT  Pro", alerts2:"System  Hema  App.  Rad  Abn.", bar:"navy"},
+    {ward:"MMW", room:"RM 1 Bed05", room2:"", gender:"Male", age:32, badge:"", dept:"Genmed \\ Medicine Unit", doc:"Harikrishnan Vanajakshy Gopi", adm:"10/03/25 00:59", days:"1", days2:"1", alerts1:"Lab(p)  OT  Pro", alerts2:"Hema  App.  Rad", bar:"navy"},
+    {ward:"MMW", room:"RM 1 Bed06", room2:"", gender:"Male", age:85, badge:"R", badge2:"C", dept:"Genmed \\ Medicine Unit", doc:"Harikrishnan Vanajakshy Gopi", adm:"08/03/25 03:58", days:"1", days2:"3", alerts1:"Lab(p)  Lab(a)  OT  Pro", alerts2:"System  Hema  App.  Rad  Abn.", bar:"navy"},
+    {ward:"MMW", room:"RM 2 Bed07", room2:"", gender:"Male", age:70, badge:"R", dept:"Genmed \\ Medicine Unit", doc:"Harikrishnan Vanajakshy Gopi", adm:"08/03/25 21:40", days:"2", days2:"3", alerts1:"Lab(p)  Lab(a)  OT  Pro", alerts2:"System  Hema  App.  Rad  Abn.", bar:"navy"},
+    {ward:"MMW", room:"RM 2 Bed09", room2:"", gender:"Male", age:43, badge:"R", dept:"Genmed \\ Medicine Unit", doc:"Harikrishnan Vanajakshy Gopi", adm:"03/03/25 02:26", days:"3", days2:"3", alerts1:"Lab(p)  Lab(a)  OT  Pro", alerts2:"Hema  App.  Rad  Abn.", bar:"navy"},
+    {ward:"MMW", room:"RM 2 Bed10", room2:"", gender:"Male", age:58, badge:"", dept:"Genmed \\ Medicine Unit", doc:"Harikrishnan Vanajakshy Gopi", adm:"08/03/25 16:03", days:"1", days2:"2", alerts1:"Lab(p)  Lab(a)  OT  Pro", alerts2:"Hema  App.  Rad", bar:"navy"},
+  ];
+
+  /* Generic dropdown + view switching */
+  function toggleDropdown(id, e){
+    e.stopPropagation();
+    const el = document.getElementById(id);
+    const wasOpen = el.classList.contains('open');
+    document.querySelectorAll('.summary-dropdown').forEach(d => d.classList.remove('open'));
+    if(!wasOpen) el.classList.add('open');
+  }
+  document.addEventListener('click', function(){
+    document.querySelectorAll('.summary-dropdown').forEach(d => d.classList.remove('open'));
+  });
+
+  function activateView(viewId, placeholderTitle){
+    document.querySelectorAll('.pf-view').forEach(v => v.classList.remove('active-view'));
+    if(viewId === 'view-placeholder'){
+      document.getElementById('placeholderTitle').textContent = placeholderTitle || '—';
+    }
+    document.getElementById(viewId).classList.add('active-view');
+  }
+
+  function selectSummaryView(name){
+    document.querySelectorAll('#summaryDropdown .summary-dd-item').forEach(i=>{
+      i.classList.toggle('selected', i.dataset.view === name);
+    });
+    document.getElementById('summaryDropdown').classList.remove('open');
+    if(name === 'Patient Summary'){
+      activateView('view-patientSummary');
+    } else {
+      activateView('view-placeholder', name);
+    }
+  }
+
+  function selectNotesItem(name){
+    document.getElementById('notesDropdown').classList.remove('open');
+    if(name === 'Kardex'){
+      renderKardex();
+      activateView('view-kardex');
+    } else {
+      activateView('view-placeholder', name);
+    }
+  }
+
+  /* Vital Signs view rows */
+  const vitalSignsData = [
+    {date:"10/03/2025 08:32", loc:"A-Alert", gcs:15, temp:"36.7", hr:81, sys:149, dias:82, resp:20, spo2:98, o2:"", mews:0, mean:"104.333", tempHl:true},
+    {date:"10/03/2025 06:00", loc:"A-Alert", gcs:15, temp:"36.7", hr:78, sys:148, dias:66, resp:20, spo2:98, o2:"", mews:0, mean:"93.333"},
+    {date:"10/03/2025 00:07", loc:"A-Alert", gcs:15, temp:"37",   hr:76, sys:144, dias:62, resp:20, spo2:97, o2:"", mews:0, mean:"89.333"},
+    {date:"09/03/2025 15:58", loc:"A-Alert", gcs:15, temp:"37",   hr:78, sys:140, dias:80, resp:20, spo2:99, o2:"", mews:0, mean:"100.000"}
+  ];
+
+  function buildEmptyVitalRowHTML(){
+    return '<div class="cell wide"><input type="text"></div>' +
+      '<div class="cell narrow"><input type="checkbox"></div>' +
+      '<div class="cell wide"><input type="text"></div>' +
+      '<div class="cell narrow"><input type="text"></div>' +
+      '<div class="cell"><input type="text"></div>' +
+      '<div class="cell"><input type="text"></div>' +
+      '<div class="cell"><input type="text"></div>' +
+      '<div class="cell"><input type="text"></div>' +
+      '<div class="cell"><input type="text"></div>' +
+      '<div class="cell"><input type="text"></div>' +
+      '<div class="cell narrow"><input type="text"></div>' +
+      '<div class="cell wide"><input type="text"></div>' +
+      '<div class="cell"><input type="text"></div>' +
+      '<div class="cell"><input type="text"></div>' +
+      '<div class="cell wide"><input type="text"></div>' +
+      '<div class="cell"><input type="text"></div>' +
+      '<div class="cell"><input type="text"></div>' +
+      '<div class="cell"><input type="text"></div>' +
+      '<div class="cell"><input type="text"></div>' +
+      '<div class="cell"><input type="text"></div>' +
+      '<div class="cell wide"><input type="text"></div>' +
+      '<div class="cell"><input type="text"></div>';
+  }
+
+  function renderVitalSigns(){
+    const wrap = document.getElementById('vsRows');
+    if(wrap.dataset.rendered === '1') return;
+    wrap.innerHTML = '';
+    vitalSignsData.forEach(v => {
+      const row = document.createElement('div');
+      row.className = 'vs-datarow';
+      row.innerHTML =
+        '<div class="cell wide">' + v.date + '</div>' +
+        '<div class="cell narrow"><input type="checkbox"></div>' +
+        '<div class="cell wide">' + v.loc + '</div>' +
+        '<div class="cell narrow">' + v.gcs + '</div>' +
+        '<div class="cell' + (v.tempHl ? ' hl' : '') + '">' + v.temp + '</div>' +
+        '<div class="cell">' + v.hr + '</div>' +
+        '<div class="cell">' + v.sys + '</div>' +
+        '<div class="cell">' + v.dias + '</div>' +
+        '<div class="cell">' + v.resp + '</div>' +
+        '<div class="cell">' + v.spo2 + '</div>' +
+        '<div class="cell narrow">' + v.o2 + '</div>' +
+        '<div class="cell wide">' + v.mews + '</div>' +
+        '<div class="cell"></div>' +
+        '<div class="cell"></div>' +
+        '<div class="cell wide"></div>' +
+        '<div class="cell"></div>' +
+        '<div class="cell"></div>' +
+        '<div class="cell"></div>' +
+        '<div class="cell"></div>' +
+        '<div class="cell"></div>' +
+        '<div class="cell wide"></div>' +
+        '<div class="cell">' + v.mean + '</div>';
+      wrap.appendChild(row);
+    });
+
+    // 5 blank rows ready for the user to try entering their own numbers
+    for(let i=0;i<5;i++){
+      const emptyRow = document.createElement('div');
+      emptyRow.className = 'vs-datarow editable';
+      emptyRow.innerHTML = buildEmptyVitalRowHTML();
+      wrap.appendChild(emptyRow);
+    }
+
+    wrap.dataset.rendered = '1';
+  }
+
+  function addVitalSignsEntry(){
+    renderVitalSigns();
+    const wrap = document.getElementById('vsRows');
+    const row = document.createElement('div');
+    row.className = 'vs-datarow editable';
+    row.innerHTML = buildEmptyVitalRowHTML();
+    wrap.appendChild(row);
+    row.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  function selectReadingsItem(name){
+    document.getElementById('readingsDropdown').classList.remove('open');
+    if(name === 'Vital Signs/Anthopometry'){
+      renderVitalSigns();
+      activateView('view-vitalsigns');
+    } else {
+      activateView('view-placeholder', name);
+    }
+  }
+
+  const kardexEntries = [
+    {date:"10/03/25 07:38", by:"HUMAID SALMEEN HUWAISHAL AL NOAIMI", time:"10/03/25 07:38",
+     text:"- Full body spong done, all linen changed\n- Pressur ulcer dressing changed\n- Bowel open small amount"},
+    {date:"10/03/25 07:37", by:"HUMAID SALMEEN HUWAISHAL AL NOAIMI", time:"10/03/25 07:37",
+     text:"- V/S cheked & recorded\n- TT & oral suction done"},
+    {date:"10/03/25 07:37", by:"HUMAID SALMEEN HUWAISHAL AL NOAIMI", time:"10/03/25 07:37",
+     text:"Received the patient from previous duty staff, patient name and id number varified.\nadmitted with c/o cardiac arrest for 6 min, revived & ROSC is acheived. Pt recieved 2 inj.Adrenaline.\nK/C/O HTN, IHD, Prostate hyperplasia, Haemorroids, Gastritis & OGD done.\n\nOn assessment-\nCNS- Patient is off sedation, not responding to  painful stimuli, pupils BLEANRL   size:3mm [GCS:8/15]. cough and gag reflex negative"},
+    {date:"10/03/25 06:16", by:"MASOUD RASHID MASOUD AL-KALBANI", time:"10/03/25 06:17",
+     text:"Positon changed.\nNGT insitu ,cheacked by aspiration nill .\nNGT flushed with 50 ml water .\nDue medication given .\nFeed restarted  68ml/hr Jevity feed 1.5L/day (Goal rate 68ml/hr) .\nHGT 5.7 MMOL/L."}
+  ];
+
+  function renderKardex(){
+    const wrap = document.getElementById('kdEntries');
+    if(wrap.dataset.rendered === '1') return;
+    wrap.innerHTML = '';
+    kardexEntries.forEach(en => {
+      const box = document.createElement('div');
+      box.className = 'kd-entry';
+      box.innerHTML =
+        '<div class="kd-entry-header">' +
+          '<div class="col"><b>Kardex Date</b>' + en.date + '</div>' +
+          '<div class="col"><b>Entered By</b>' + en.by + '</div>' +
+          '<div class="col"><b>Entered Time</b>' + en.time + '</div>' +
+          '<div class="arrows"><span>▲</span><span>▼</span></div>' +
+        '</div>' +
+        '<div class="kd-entry-body"><div class="kd-entry-text"></div></div>';
+      box.querySelector('.kd-entry-text').textContent = en.text;
+      wrap.appendChild(box);
+    });
+    wrap.dataset.rendered = '1';
+  }
+
+  /* Previous SBAR (history) modal */
+  const prevSbarData = [
+    {
+      dateLine: "08/03/2025\n13:37",
+      name: "MOHAMED\nUKKASHA",
+      situation: "Admitted due to cardiac\narrest for 6 minutes,\nreviewed & ROSC is\nacheived. Received 2",
+      background: "A known case of HTN,\nIHD, Prostate\nhyperplasia, hemorroids,\ngastritis and OGD done.",
+      assessment: "Vital signs checked and\nrecorded.\nPosition changed and\nsuctioning done.",
+      recommendation: "plan :\n- added human albumin\n- v/s as per anaesthesia\n- continue antibiotic",
+      remarks: "iv cannula 20g on rt\ncephalic"
+    },
+    {
+      dateLine: "08/03/2025\n06:50",
+      name: "GAMAL\nMOSTAFA",
+      situation: "Admitted due to cardiac\narrest for 6 minutes,\nreviewed & ROSC is\nacheived. Received 2",
+      background: "A known case of HTN,\nIHD, Prostate\nhyperplasia, hemorroids,\ngastritis and OGD done.",
+      assessment: "Vital signs checked and\nrecorded.\nPosition changed and\nsuctioning done.",
+      recommendation: "- f/u cbc cm if less than 7\nfor blood transfuion\n- v/s as per anaesthesia\n- continue antibiotic",
+      remarks: "iv cannula 20g on rt\ncephalic"
+    },
+    {
+      dateLine: "07/03/2025\n13:05",
+      name: "JISMY\nYOHANNAN",
+      situation: "Admitted due to cardiac\narrest for 6 minutes,\nreviewed & ROSC is\nacheived. Received 2",
+      background: "A known case of HTN,\nIHD, Prostate\nhyperplasia, hemorroids,\ngastritis and OGD done.",
+      assessment: "Vital signs checked and\nrecorded.\nPosition changed and\nsuctioning done.",
+      recommendation: "- f/u cbc cm if less than 7\nfor blood transfuion\n- v/s as per anaesthesia\n- continue antibiotic",
+      remarks: "iv cannula 20g on rt\ncephalic"
+    },
+    {
+      dateLine: "07/03/2025\n06:18",
+      name: "ERIC JORIS\nSERAPIO",
+      situation: "Admitted due to cardiac\narrest for 6 minutes,\nreviewed & ROSC is\nacheived. Received 2",
+      background: "A known case of HTN,\nIHD, Prostate\nhyperplasia, hemorroids,\ngastritis and OGD done.",
+      assessment: "- v/s as per anaesthesia\n- continue antibiuotic\n- trace final c/s report\n- ngt feed",
+      recommendation: "",
+      remarks: "Procalcitonin 1894.68"
+    },
+    {
+      dateLine: "05/03/2025\n20:48",
+      name: "DINY\nSURENDRN",
+      situation: "Admitted due to cardiac\narrest for 6 minutes,\nreviewed & ROSC is\nacheived. Received 2",
+      background: "A known case of HTN,\nIHD, Prostate\nhyperplasia, hemorroids,\ngastritis and OGD done.",
+      assessment: "vital signs taken and\nrecorded\nPSIMV, PC 16, PEEP 10,\nRR 18, PS 16, FIO2 40%",
+      recommendation: "- v/s as per anaesthesia\n- continue antibiuotic\n- trace final c/s report\n- dvt and gi prophylaxis",
+      remarks: "rt hand 22 g cannula"
+    }
+  ];
+
+  function renderPrevSbarRows(){
+    const wrap = document.getElementById('prevSbarRows');
+    if(wrap.dataset.rendered === '1') return;
+    wrap.innerHTML = '';
+    prevSbarData.forEach(r => {
+      const row = document.createElement('div');
+      row.className = 'prevsbar-datarow';
+      row.innerHTML =
+        '<div class="cell namecell" style="width:110px;"></div>' +
+        '<div class="cell" style="width:130px;"></div>' +
+        '<div class="cell" style="width:130px;"></div>' +
+        '<div class="cell" style="width:130px;"></div>' +
+        '<div class="cell" style="width:150px;"></div>' +
+        '<div class="cell" style="flex:1;"></div>';
+      const cells = row.querySelectorAll('.cell');
+      cells[0].innerHTML = r.dateLine.split('\n').join('<br>') + '<br><b>' + r.name.split('\n').join('<br>') + '</b>';
+      cells[1].textContent = r.situation;
+      cells[2].textContent = r.background;
+      cells[3].textContent = r.assessment;
+      cells[4].textContent = r.recommendation;
+      cells[5].textContent = r.remarks;
+      wrap.appendChild(row);
+    });
+    wrap.dataset.rendered = '1';
+  }
+
+  function openPreviousSBAR(){
+    renderPrevSbarRows();
+    document.getElementById('prevSbarModal').classList.add('open');
+  }
+  function closePreviousSBAR(){
+    document.getElementById('prevSbarModal').classList.remove('open');
+  }
+
+  /* Nursing SBAR modal */
+  const sbarRowsData = [
+    {
+      date: "08/03/2025\n13:37",
+      patient: "ID:=00000\nPatient Name,\nMale , 76 Year(s)",
+      wardbed: "BedDtl:Isolation Room 1,\nMMW ISO 01\nDOA:16/12/2024 22:28\nConsult:HARIKRISHNAN VANAJAKSHY GOPI",
+      situation: "Admitted due to\ncardiac arrest for 6\nminutes, reviewed\n& ROSC is\nachieved.",
+      background: "A known case of HTN,\nIHD, Prostate\nhyperplasia,\nhemorroids, gastritis\nand OGD done.",
+      assessment: "Vital signs\nchecked and\nrecorded.\nPosition changed\nand suctioning",
+      recommendation: "plan :\n- added human\nalbumin\n- v/s as per\nanaesthesia",
+      remarks: "iv cannula 20g on\nrt cephalic"
+    }
+  ];
+
+  function renderSbarRows(){
+    const wrap = document.getElementById('sbarRows');
+    if(wrap.dataset.rendered === '1') return;
+    wrap.innerHTML = '';
+    sbarRowsData.forEach(r => {
+      const row = document.createElement('div');
+      row.className = 'sbar-datarow';
+      row.innerHTML =
+        '<div class="cell" style="width:75px;"></div>' +
+        '<div class="cell" style="width:120px;"></div>' +
+        '<div class="cell" style="width:135px;"></div>' +
+        '<div class="cell" style="width:130px;"></div>' +
+        '<div class="cell" style="width:130px;"></div>' +
+        '<div class="cell" style="width:100px;"></div>' +
+        '<div class="cell" style="width:100px;"></div>' +
+        '<div class="cell" style="flex:1;"></div>';
+      const cells = row.querySelectorAll('.cell');
+      cells[0].textContent = r.date;
+      cells[1].textContent = r.patient;
+      cells[2].textContent = r.wardbed;
+      cells[3].textContent = r.situation;
+      cells[4].textContent = r.background;
+      cells[5].textContent = r.assessment;
+      cells[6].textContent = r.recommendation;
+      cells[7].textContent = r.remarks;
+      wrap.appendChild(row);
+    });
+    // a few empty rows to match the reference layout
+    for(let i=0;i<5;i++){
+      const empty = document.createElement('div');
+      empty.className = 'sbar-datarow';
+      empty.innerHTML = '<div class="cell" style="width:75px;"></div><div class="cell" style="width:120px;"></div><div class="cell" style="width:135px;"></div><div class="cell" style="width:130px;"></div><div class="cell" style="width:130px;"></div><div class="cell" style="width:100px;"></div><div class="cell" style="width:100px;"></div><div class="cell" style="flex:1;"></div>';
+      wrap.appendChild(empty);
+    }
+    wrap.dataset.rendered = '1';
+  }
+
+  function openNursingSBAR(){
+    renderSbarRows();
+    document.getElementById('sbarModal').classList.add('open');
+  }
+  function closeNursingSBAR(){
+    document.getElementById('sbarModal').classList.remove('open');
+  }
+
+  /* Patient page navigation */
+  function goToPatientPage(p){
+    document.getElementById('pfGenderLine').textContent = (p.gender||'Male') + '\u00A0' + (p.age||'--') + '\u00A0Year(s)\u00A0Omani';
+    document.getElementById('pfLoc').textContent = p.ward + ' ' + p.room + (p.room2 ? ' / ' + p.room2 : '');
+    document.getElementById('pfDoctor').textContent = p.doc || 'Maheen Ajmal';
+    document.getElementById('pfDeptUnit').textContent = p.dept || 'General Medicine / Medicine Unit';
+    document.getElementById('pfAdmDate').textContent = (p.adm ? p.adm.split(' ')[0].replace(/(\d+)\/(\d+)\/(\d+)/, function(m,d,mo,y){ return d+'/'+mo+'/20'+y; }) : '16/12/2024');
+    document.getElementById('screenIPD').style.display = 'none';
+    document.getElementById('screenDesktop').style.display = 'none';
+    document.getElementById('screenPatient').style.display = 'block';
+    activateView('view-patientSummary');
+    document.querySelectorAll('#summaryDropdown .summary-dd-item').forEach(i=>{
+      i.classList.toggle('selected', i.dataset.view === 'Patient Summary');
+    });
+  }
+
+  function renderRows(filterText){
+    const wrap = document.getElementById('ipdRows');
+    wrap.innerHTML = '';
+    const term = (filterText||'').trim().toLowerCase();
+    patients.forEach(p => {
+      if(term && !(p.ward+p.room).toLowerCase().includes(term)) return;
+      const row = document.createElement('div');
+      row.className = 'ipd-row';
+      row.innerHTML = `
+        <div class="bar ${p.bar}"></div>
+        <div class="ipd-col c1">${p.ward} ${p.room}${p.room2 ? '<div class="l2">'+p.room2+'</div>' : ''}</div>
+        <div class="ipd-col c2">${p.gender ? p.gender+' '+p.age+' Year(s)'+(p.badge?'<span class="badge2 r">'+p.badge+'</span>':'')+(p.badge2?'<span class="badge2 c">'+p.badge2+'</span>':'')+'<div class="patient-name-link">Patient Name</div>' : ''}</div>
+        <div class="ipd-col c3">${p.dept}${p.doc ? '<div class="doc">'+p.doc+'</div>' : ''}</div>
+        <div class="ipd-col c4">${p.adm}${p.days ? '<div class="days">Days: '+p.days+'  '+p.days2+'</div>' : ''}</div>
+        <div class="ipd-col c5">${p.alerts1}${p.alerts2 ? '<div class="l2">'+p.alerts2+'</div>' : ''}</div>
+        <div class="ipd-col c6">
+          ${p.gender ? '<button class="ipd-btn">Adm.</button><button class="ipd-btn">Swap</button><button class="ipd-btn">Trn-&gt;</button><button class="ipd-btn">Dis.</button>' : '<button class="ipd-btn">Adm.</button>'}
+        </div>
+      `;
+      row.querySelectorAll('.ipd-btn').forEach(btn=>{
+        btn.addEventListener('click', (e)=>{
+          e.stopPropagation();
+          alert(btn.textContent + ' — ' + p.ward + ' ' + p.room + (p.gender ? (' ('+p.gender+', '+p.age+'y)') : ' (bed empty)'));
+        });
+      });
+      const nameLink = row.querySelector('.patient-name-link');
+      if(nameLink){
+        nameLink.addEventListener('click', (e)=>{
+          e.stopPropagation();
+          goToPatientPage(p);
+        });
+      }
+      row.addEventListener('click', ()=>{
+        if(p.gender){
+          goToPatientPage(p);
+        }
+      });
+      wrap.appendChild(row);
+    });
+  }
+
+  document.getElementById('fPatientId').addEventListener('input', (e)=> renderRows(e.target.value));
+  document.getElementById('fWard').addEventListener('change', ()=> renderRows());
+</script>
+
+</body>
+</html>
